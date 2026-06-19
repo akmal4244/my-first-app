@@ -147,6 +147,7 @@
       sortContactsByNewest,
       validateContactDraft
     } from "./assets/js/core/contact-utils.js";
+    import { buildMutationRequest, pollMutationReceipt } from "./assets/js/core/mutation-utils.js";
 
     const URL = getApiUrl();
     const CONTACTS_CACHE_KEY = STORAGE_KEYS.contactsCache;
@@ -403,15 +404,19 @@
     }
 
     async function postContactMutation(action, payload) {
+      const request = buildMutationRequest(action, localStorage.getItem(STORAGE_KEYS.token), payload);
       await fetch(URL, {
         method: "POST",
         mode: "no-cors",
-        body: JSON.stringify({
-          action,
-          token: localStorage.getItem(STORAGE_KEYS.token),
-          payload
-        })
+        body: JSON.stringify(request)
       });
+      const receipt = await pollMutationReceipt({
+        url: URL,
+        token: request.token,
+        requestId: request.request_id
+      });
+      if (receipt.status !== "success") throw new Error(receipt.error);
+      return receipt;
     }
 
     async function refreshContactsFromSheets() {

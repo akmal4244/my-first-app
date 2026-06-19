@@ -193,6 +193,7 @@
   <script type="module">
     import { getApiUrl, STORAGE_KEYS } from "./assets/js/config.js";
     import { calculateRisk } from "./assets/js/core/risk-engine.js";
+    import { buildMutationRequest, pollMutationReceipt } from "./assets/js/core/mutation-utils.js";
 
     const URL = getApiUrl();
     const form = document.querySelector("#contactForm");
@@ -348,22 +349,36 @@
       event.preventDefault();
       const values = Object.fromEntries(new FormData(form));
       const risk = updateRiskPreview();
-      const data = {
+      const payload = {
         ...values,
-        action: "findings.create.legacy",
-        request_id: crypto.randomUUID(),
-        token: localStorage.getItem(STORAGE_KEYS.token),
         likelihood: risk.likelihood,
         impact: risk.impact,
         risk_score: risk.score,
         risk_level: risk.level,
         message: buildLegacyMessage(values, risk)
       };
+      const data = {
+        ...buildMutationRequest("findings.create.legacy", localStorage.getItem(STORAGE_KEYS.token), payload, () => crypto.randomUUID()),
+        ...payload
+      };
       msg.textContent = "";
       setLoading(true);
 
       try {
         await postData(data);
+        msg.textContent = "Penilaian dihantar. Sedang mengesahkan simpanan...";
+        const receipt = await pollMutationReceipt({
+          url: URL,
+          token: data.token,
+          requestId: data.request_id
+        });
+
+        if (receipt.status !== "success") {
+          msg.textContent = receipt.error;
+          showToast("Belum disahkan", receipt.error, "info");
+          setLoading(false);
+          return;
+        }
 
         msg.textContent = "Terima kasih! Penilaian anda telah dihantar.";
         showToast("Berjaya", msg.textContent, "success");

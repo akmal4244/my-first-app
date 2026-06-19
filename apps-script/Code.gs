@@ -499,10 +499,14 @@ function getContacts(user) {
 }
 
 function updateContact(body) {
+  const mutation = contactMutationContext_(body, "contacts.update");
+  const existingReceipt = findMutationReceipt_(mutation.requestId);
+  if (existingReceipt) return json({ ok: existingReceipt.status === "success", receipt: existingReceipt });
+
   const user = validateToken(body.token);
-  if (!user) return json({ ok: false, error: "invalid token" });
-  if (user.role !== ROLE_ADMIN) return json({ ok: false, error: "forbidden" });
-  const payload = contactMutationPayload_(body);
+  if (!user) return contactMutationError_(mutation, "", "", "INVALID_TOKEN", "invalid token");
+  if (user.role !== ROLE_ADMIN) return contactMutationError_(mutation, user.id, "", "FORBIDDEN", "forbidden");
+  const payload = mutation.payload;
 
   const contact = {
     id: clean_(payload.id),
@@ -511,21 +515,24 @@ function updateContact(body) {
     message: clean_(payload.message)
   };
 
-  if (!contact.id) return json({ ok: false, error: "missing id" });
+  if (!contact.id) return contactMutationError_(mutation, user.id, "", "MISSING_ID", "missing id");
   if (!contact.name || !contact.email || !contact.message) {
-    return json({ ok: false, error: "missing fields" });
+    return contactMutationError_(mutation, user.id, contact.id, "MISSING_FIELDS", "missing fields");
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) {
-    return json({ ok: false, error: "invalid email" });
+    return contactMutationError_(mutation, user.id, contact.id, "INVALID_EMAIL", "invalid email");
   }
 
   const lock = LockService.getScriptLock();
   lock.waitLock(5000);
 
   try {
+    const repeatedReceipt = findMutationReceipt_(mutation.requestId);
+    if (repeatedReceipt) return json({ ok: repeatedReceipt.status === "success", receipt: repeatedReceipt });
+
     fixMisalignedContactRows_();
     const found = findContactRowById_(contact.id);
-    if (!found) return json({ ok: false, error: "contact not found" });
+    if (!found) return contactMutationError_(mutation, user.id, contact.id, "CONTACT_NOT_FOUND", "contact not found");
 
     const beforeJson = JSON.stringify(contactRowToObject_(found.values));
     found.sheet
@@ -538,39 +545,62 @@ function updateContact(body) {
       action: "contacts.update",
       entityType: "contact",
       entityId: contact.id,
-      requestId: clean_(body.request_id || body.requestId || payload.request_id || payload.requestId || ""),
+      requestId: mutation.requestId,
       beforeJson,
       afterJson: JSON.stringify(contact)
     });
 
+    writeMutationReceipt_({
+      requestId: mutation.requestId,
+      userId: user.id,
+      institutionId: DEFAULT_INSTITUTION_ID,
+      action: mutation.action,
+      entityType: "contact",
+      entityId: contact.id,
+      status: "success",
+      errorCode: "",
+      errorMessage: ""
+    });
+
     return json({
       ok: true,
+      receipt: findMutationReceipt_(mutation.requestId),
       contact: {
         ...contact,
         created_at: formatValue_(found.values[4])
       }
     });
+  } catch (err) {
+    contactMutationError_(mutation, user.id, contact.id, "SERVER_ERROR", err.message);
+    throw err;
   } finally {
     lock.releaseLock();
   }
 }
 
 function deleteContact(body) {
-  const user = validateToken(body.token);
-  if (!user) return json({ ok: false, error: "invalid token" });
-  if (user.role !== ROLE_ADMIN) return json({ ok: false, error: "forbidden" });
+  const mutation = contactMutationContext_(body, "contacts.delete");
+  const existingReceipt = findMutationReceipt_(mutation.requestId);
+  if (existingReceipt) return json({ ok: existingReceipt.status === "success", receipt: existingReceipt });
 
-  const payload = contactMutationPayload_(body);
+  const user = validateToken(body.token);
+  if (!user) return contactMutationError_(mutation, "", "", "INVALID_TOKEN", "invalid token");
+  if (user.role !== ROLE_ADMIN) return contactMutationError_(mutation, user.id, "", "FORBIDDEN", "forbidden");
+
+  const payload = mutation.payload;
   const id = clean_(payload.id);
-  if (!id) return json({ ok: false, error: "missing id" });
+  if (!id) return contactMutationError_(mutation, user.id, "", "MISSING_ID", "missing id");
 
   const lock = LockService.getScriptLock();
   lock.waitLock(5000);
 
   try {
+    const repeatedReceipt = findMutationReceipt_(mutation.requestId);
+    if (repeatedReceipt) return json({ ok: repeatedReceipt.status === "success", receipt: repeatedReceipt });
+
     fixMisalignedContactRows_();
     const found = findContactRowById_(id);
-    if (!found) return json({ ok: false, error: "contact not found" });
+    if (!found) return contactMutationError_(mutation, user.id, id, "CONTACT_NOT_FOUND", "contact not found");
 
     const beforeJson = JSON.stringify(contactRowToObject_(found.values));
     found.sheet.deleteRow(found.rowNumber);
@@ -581,12 +611,27 @@ function deleteContact(body) {
       action: "contacts.delete",
       entityType: "contact",
       entityId: id,
-      requestId: clean_(body.request_id || body.requestId || payload.request_id || payload.requestId || ""),
+      requestId: mutation.requestId,
       beforeJson,
       afterJson: ""
     });
 
-    return json({ ok: true, id });
+    writeMutationReceipt_({
+      requestId: mutation.requestId,
+      userId: user.id,
+      institutionId: DEFAULT_INSTITUTION_ID,
+      action: mutation.action,
+      entityType: "contact",
+      entityId: id,
+      status: "success",
+      errorCode: "",
+      errorMessage: ""
+    });
+
+    return json({ ok: true, receipt: findMutationReceipt_(mutation.requestId), id });
+  } catch (err) {
+    contactMutationError_(mutation, user.id, id, "SERVER_ERROR", err.message);
+    throw err;
   } finally {
     lock.releaseLock();
   }
@@ -948,6 +993,27 @@ function contactMutationPayload_(body) {
   if (body && typeof body.payload === "object" && body.payload !== null) return body.payload;
   if (body && typeof body.contact === "object" && body.contact !== null) return body.contact;
   return body || {};
+}
+
+function contactMutationContext_(body, action) {
+  const payload = contactMutationPayload_(body);
+  const requestId = clean_(body.request_id || body.requestId || payload.request_id || payload.requestId || Utilities.getUuid());
+  return { action, payload, requestId };
+}
+
+function contactMutationError_(mutation, userId, entityId, errorCode, errorMessage) {
+  writeMutationReceipt_({
+    requestId: mutation.requestId,
+    userId: userId || "",
+    institutionId: DEFAULT_INSTITUTION_ID,
+    action: mutation.action,
+    entityType: "contact",
+    entityId: entityId || "",
+    status: "error",
+    errorCode,
+    errorMessage
+  });
+  return json({ ok: false, error: errorMessage, request_id: mutation.requestId });
 }
 
 function getScriptCache_() {
