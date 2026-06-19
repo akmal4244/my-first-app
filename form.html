@@ -130,7 +130,14 @@
       });
     }
 
+    function clearCredentialsIfNotRemembered() {
+      if (localStorage.getItem("spradRememberMe") === "true") return;
+      localStorage.removeItem("spradUsername");
+      localStorage.removeItem("spradPassword");
+    }
+
     logout.addEventListener("click", () => {
+      clearCredentialsIfNotRemembered();
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       window.location.href = "login.html";

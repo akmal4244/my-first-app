@@ -91,6 +91,13 @@
           <span class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Kata laluan</span>
           <input id="password" name="password" type="password" autocomplete="current-password" required class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100">
         </label>
+        <label class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <span class="flex items-center gap-3 text-sm font-extrabold text-slate-700">
+            <input id="remember" name="remember" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+            Ingat saya
+          </span>
+          <span class="text-[11px] font-bold uppercase tracking-wide text-slate-400">Simpan login</span>
+        </label>
         <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-extrabold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-black focus:outline-none focus:ring-4 focus:ring-slate-200">
           <i class="fa-solid fa-right-to-bracket"></i>
           Log masuk
@@ -104,8 +111,33 @@
   <script>
     const URL = "https://script.google.com/macros/s/AKfycbyvO77bqueo45EPyAKW6jUK8R5AEIVvFLjqGhlK1Sv5s8N6ay7anY9QhGLSZaIznApkiQ/exec";
     const form = document.querySelector("#loginForm");
+    const remember = document.querySelector("#remember");
     const msg = document.querySelector("#msg");
     let toastTimer;
+
+    function clearRememberedCredentials() {
+      localStorage.removeItem("spradRememberMe");
+      localStorage.removeItem("spradUsername");
+      localStorage.removeItem("spradPassword");
+    }
+
+    function loadRememberedCredentials() {
+      const shouldRemember = localStorage.getItem("spradRememberMe") === "true";
+      remember.checked = shouldRemember;
+      if (!shouldRemember) return;
+      form.username.value = localStorage.getItem("spradUsername") || "";
+      form.password.value = localStorage.getItem("spradPassword") || "";
+    }
+
+    function saveRememberedCredentials() {
+      if (!remember.checked) {
+        clearRememberedCredentials();
+        return;
+      }
+      localStorage.setItem("spradRememberMe", "true");
+      localStorage.setItem("spradUsername", form.username.value);
+      localStorage.setItem("spradPassword", form.password.value);
+    }
 
     function showToast(title, text, type = "info") {
       const toast = document.querySelector("#toast");
@@ -148,6 +180,7 @@
           } else {
             localStorage.removeItem("role");
           }
+          saveRememberedCredentials();
           window.location.href = role === "pengguna" ? "form.html" : "view.html";
           return;
         }
@@ -158,6 +191,12 @@
         showToast("Tidak berjaya", msg.textContent, "error");
       }
     });
+
+    remember.addEventListener("change", () => {
+      if (!remember.checked) clearRememberedCredentials();
+    });
+
+    loadRememberedCredentials();
   </script>
 </body>
 </html>
