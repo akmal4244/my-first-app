@@ -47,15 +47,20 @@
 
   <main class="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
     <aside class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Menu pentadbir</p>
-      <div class="mt-4 space-y-2">
-        <a href="view.html" class="flex items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-sm font-extrabold text-blue-600">
-          <i class="fa-solid fa-table-list w-4"></i>
-          Semua penilaian
-        </a>
+      <div class="flex items-center justify-between gap-3">
+        <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Ruang kerja</p>
+        <span id="sidebarRole" class="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-blue-700">Pentadbir</span>
+      </div>
+      <div class="mt-5 space-y-2">
+        <p class="px-4 text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Menu Pengguna</p>
         <a href="form.html" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900">
           <i class="fa-solid fa-clipboard-list w-4"></i>
           Borang penilaian
+        </a>
+        <p class="px-4 pt-4 text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Menu Pentadbir</p>
+        <a href="view.html" class="flex items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-sm font-extrabold text-blue-600">
+          <i class="fa-solid fa-table-list w-4"></i>
+          Semua penilaian
         </a>
       </div>
       <div class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -111,10 +116,12 @@
 
   <script>
     const URL = "https://script.google.com/macros/s/AKfycbyvO77bqueo45EPyAKW6jUK8R5AEIVvFLjqGhlK1Sv5s8N6ay7anY9QhGLSZaIznApkiQ/exec";
+    const CONTACTS_CACHE_KEY = "spradContactsCache";
     const list = document.querySelector("#list");
     const logout = document.querySelector("#logout");
     const totalCount = document.querySelector("#totalCount");
     const latestDate = document.querySelector("#latestDate");
+    const sidebarRole = document.querySelector("#sidebarRole");
     let toastTimer;
 
     function showToast(title, text, type = "info") {
@@ -163,6 +170,22 @@
       list.append(item);
     }
 
+    function getCachedContacts() {
+      try {
+        const cached = localStorage.getItem(CONTACTS_CACHE_KEY);
+        if (!cached) return null;
+        const contacts = JSON.parse(cached);
+        return Array.isArray(contacts) ? contacts : null;
+      } catch (error) {
+        localStorage.removeItem(CONTACTS_CACHE_KEY);
+        return null;
+      }
+    }
+
+    function saveContactsCache(contacts) {
+      localStorage.setItem(CONTACTS_CACHE_KEY, JSON.stringify(contacts));
+    }
+
     function renderContact(contact) {
       const item = document.createElement("li");
       const header = document.createElement("div");
@@ -186,6 +209,22 @@
       header.append(name, email);
       item.append(header, message, createdAt);
       list.append(item);
+    }
+
+    function renderContacts(contacts) {
+      totalCount.textContent = contacts.length;
+      latestDate.textContent = contacts[0]?.created_at || "-";
+      list.innerHTML = "";
+      if (contacts.length === 0) {
+        showMessage("Tiada penilaian lagi");
+        return;
+      }
+      contacts.forEach(renderContact);
+    }
+
+    function setupSidebar() {
+      const role = (localStorage.getItem("role") || "pentadbir").toLowerCase();
+      sidebarRole.textContent = role === "pengguna" ? "Pengguna" : "Pentadbir";
     }
 
     function clearCredentialsIfNotRemembered() {
@@ -213,7 +252,13 @@
         return;
       }
 
-      showLoadingState();
+      setupSidebar();
+      const cachedContacts = getCachedContacts();
+      if (cachedContacts) {
+        renderContacts(cachedContacts);
+      }
+      if (!cachedContacts) showLoadingState();
+
       try {
         const params = new URLSearchParams({ action: "getContacts", token });
         const res = await fetch(URL + "?" + params.toString());
@@ -228,15 +273,13 @@
         }
 
         const contacts = Array.isArray(data.contacts) ? data.contacts : [];
-        totalCount.textContent = contacts.length;
-        latestDate.textContent = contacts[0]?.created_at || "-";
-        list.innerHTML = "";
-        if (contacts.length === 0) {
-          showMessage("Tiada penilaian lagi");
+        saveContactsCache(contacts);
+        renderContacts(contacts);
+      } catch (error) {
+        if (cachedContacts) {
+          showToast("Makluman", "Data lama dipaparkan sementara sambungan Google Sheets gagal.", "info");
           return;
         }
-        contacts.forEach(renderContact);
-      } catch (error) {
         showMessage("Tidak dapat dimuatkan — cuba lagi nanti");
         showToast("Ralat", "Data tidak dapat dimuatkan. Sila cuba lagi nanti.", "error");
       }
