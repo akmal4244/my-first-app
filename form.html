@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sistem Kenalan | Hubungi kami</title>
+  <title>SPRAD | Penilaian risiko</title>
   <link rel="icon" type="image/webp" href="https://www.akm.gov.my/templates/yootheme/cache/91/JATA%20NEGARA%20AI-01-91eac591.webp">
   <link rel="apple-touch-icon" href="https://www.akm.gov.my/templates/yootheme/cache/91/JATA%20NEGARA%20AI-01-91eac591.webp">
   <meta name="theme-color" content="#2563eb">
@@ -16,12 +16,15 @@
         <div class="rounded-3xl border border-white/70 bg-blue-600 p-6 text-white shadow-xl shadow-blue-200">
           <div class="flex items-center gap-3">
             <img src="https://www.akm.gov.my/templates/yootheme/cache/91/JATA%20NEGARA%20AI-01-91eac591.webp" alt="Jata Negara" class="h-14 w-14 rounded-2xl bg-white object-contain p-1 shadow-sm">
-            <p class="text-sm font-bold text-blue-100">Sistem Kenalan</p>
+            <div>
+              <p class="text-sm font-black text-blue-100">SPRAD</p>
+              <p class="mt-1 text-xs font-bold text-blue-100">Sistem Penilaian Risiko Audit Dalam</p>
+            </div>
           </div>
-          <h1 class="mt-8 text-4xl font-black tracking-tight">Hubungi kami</h1>
+          <h1 class="mt-8 text-4xl font-black tracking-tight">Penilaian risiko</h1>
         </div>
         <div class="rounded-3xl border border-white/70 bg-white p-6 shadow-xl shadow-slate-200/60">
-          <p class="text-sm font-bold text-slate-500">Status mesej</p>
+          <p class="text-sm font-bold text-slate-500">Status penilaian</p>
           <p class="mt-8 text-2xl font-black text-emerald-600">Dibuka</p>
         </div>
         <button id="logout" type="button" class="hidden rounded-3xl border border-slate-200 bg-white px-5 py-4 text-left text-base font-black text-blue-700 shadow-xl shadow-slate-200/60 transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100">Log keluar</button>
@@ -37,7 +40,7 @@
             <input id="email" name="email" type="email" autocomplete="email" required class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100">
           </label>
           <label class="block">
-            <span class="text-sm font-bold text-slate-800">Mesej</span>
+            <span class="text-sm font-bold text-slate-800">Catatan risiko</span>
             <textarea id="message" name="message" required class="mt-2 min-h-36 w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"></textarea>
           </label>
           <button type="submit" class="w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-black text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200">Hantar</button>
@@ -72,7 +75,7 @@
         body: JSON.stringify(data)
       });
 
-      msg.textContent = "Terima kasih! Kami akan hubungi anda semula.";
+      msg.textContent = "Terima kasih! Penilaian anda telah dihantar.";
       form.reset();
     });
   </script>
