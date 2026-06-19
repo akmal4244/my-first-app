@@ -112,16 +112,17 @@
 
       <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div class="border-b border-slate-100 bg-slate-50 px-5 py-4">
-          <p class="text-xs font-extrabold uppercase tracking-widest text-slate-500">Senarai submission</p>
+          <p class="text-xs font-extrabold uppercase tracking-widest text-slate-500">Jadual penilaian</p>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-slate-100">
             <thead class="bg-white">
               <tr>
-                <th class="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Nama</th>
-                <th class="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">E-mel</th>
-                <th class="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Mesej</th>
-                <th class="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Tarikh</th>
+                <th class="px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Nama</th>
+                <th class="px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">E-mel</th>
+                <th class="px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Mesej</th>
+                <th class="px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Tarikh</th>
+                <th class="px-4 py-3 text-right text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Tindakan</th>
               </tr>
             </thead>
             <tbody id="list" class="divide-y divide-slate-100"></tbody>
@@ -140,7 +141,12 @@
 
   <script type="module">
     import { getApiUrl, STORAGE_KEYS } from "./assets/js/config.js";
-    import { sortContactsByNewest } from "./assets/js/core/contact-utils.js";
+    import {
+      applyContactUpdate,
+      removeContactById,
+      sortContactsByNewest,
+      validateContactDraft
+    } from "./assets/js/core/contact-utils.js";
 
     const URL = getApiUrl();
     const CONTACTS_CACHE_KEY = STORAGE_KEYS.contactsCache;
@@ -155,6 +161,7 @@
     const PAGE_SIZE = 5;
     let contactsState = [];
     let currentPage = 1;
+    let editingContactId = "";
     let toastTimer;
 
     function normalizeCleanUrl(route) {
@@ -208,7 +215,7 @@
       latestDate.textContent = "-";
       const row = document.createElement("tr");
       const cell = document.createElement("td");
-      cell.colSpan = 4;
+      cell.colSpan = 5;
       cell.className = "p-6 text-center text-sm font-bold text-slate-500";
       cell.textContent = text;
       row.append(cell);
@@ -229,9 +236,9 @@
       Array.from({ length: PAGE_SIZE }).forEach((_, rowIndex) => {
         const row = document.createElement("tr");
         row.className = "animate-pulse";
-        [34, 44, 72, 30].forEach((width, cellIndex) => {
+        [28, 34, 52, 24, 22].forEach((width, cellIndex) => {
           const cell = document.createElement("td");
-          cell.className = "px-5 py-4";
+          cell.className = "px-4 py-4";
           cell.innerHTML = `<span class="block h-4 rounded ${cellIndex === 2 ? "bg-slate-200" : "bg-slate-100"}" style="width:${Math.max(22, width - rowIndex * 3)}%"></span>`;
           row.append(cell);
         });
@@ -255,25 +262,73 @@
       localStorage.setItem(CONTACTS_CACHE_KEY, JSON.stringify(contacts));
     }
 
-    function renderContact(contact) {
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value)
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function createActionButton(label, action, tone = "neutral") {
+      const styles = {
+        neutral: "border-slate-200 bg-white text-slate-600 hover:bg-slate-100",
+        primary: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
+        danger: "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+      };
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.action = action;
+      button.className = `rounded-full border px-3 py-1.5 text-[11px] font-extrabold transition ${styles[tone] || styles.neutral}`;
+      button.textContent = label;
+      return button;
+    }
+
+    function renderContact(contact, mode = "view") {
       const row = document.createElement("tr");
+      row.dataset.contactId = contact.id || "";
+      row.dataset.mode = mode;
+
       const name = document.createElement("td");
       const email = document.createElement("td");
       const message = document.createElement("td");
       const createdAt = document.createElement("td");
+      const actions = document.createElement("td");
 
       row.className = "align-top transition hover:bg-slate-50";
-      name.className = "whitespace-nowrap px-5 py-4 text-sm font-extrabold text-slate-900";
-      email.className = "whitespace-nowrap px-5 py-4 text-xs font-bold text-slate-500";
-      message.className = "min-w-[260px] px-5 py-4 text-sm font-medium leading-6 text-slate-700";
-      createdAt.className = "whitespace-nowrap px-5 py-4 text-[11px] font-extrabold uppercase tracking-widest text-slate-400";
-
-      name.textContent = contact.name || "";
-      email.textContent = contact.email || "";
-      message.textContent = contact.message || "";
+      name.className = "min-w-[130px] px-4 py-4 text-sm font-extrabold text-slate-900";
+      email.className = "min-w-[160px] px-4 py-4 text-xs font-bold text-slate-500";
+      message.className = "min-w-[240px] px-4 py-4 text-sm font-medium leading-6 text-slate-700";
+      createdAt.className = "whitespace-nowrap px-4 py-4 text-[11px] font-extrabold uppercase tracking-widest text-slate-400";
+      actions.className = "whitespace-nowrap px-4 py-4 text-right";
       createdAt.textContent = contact.created_at || "";
 
-      row.append(name, email, message, createdAt);
+      if (mode === "edit") {
+        name.innerHTML = `<input data-field="name" value="${escapeAttribute(contact.name || "")}" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-900 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100">`;
+        email.innerHTML = `<input data-field="email" type="email" value="${escapeAttribute(contact.email || "")}" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100">`;
+        message.innerHTML = `<textarea data-field="message" class="min-h-24 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold leading-6 text-slate-700 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100">${escapeHtml(contact.message || "")}</textarea>`;
+        actions.append(
+          createActionButton("Simpan", "save", "primary"),
+          document.createTextNode(" "),
+          createActionButton("Batal", "cancel", "neutral")
+        );
+      } else {
+        name.textContent = contact.name || "";
+        email.textContent = contact.email || "";
+        message.textContent = contact.message || "";
+        actions.append(
+          createActionButton("Ubah", "edit", "primary"),
+          document.createTextNode(" "),
+          createActionButton("Padam", "delete", "danger")
+        );
+      }
+
+      row.append(name, email, message, createdAt, actions);
       list.append(row);
     }
 
@@ -307,10 +362,50 @@
         showMessage("Tiada penilaian lagi");
         return;
       }
+      updatePagination();
       const start = (currentPage - 1) * PAGE_SIZE;
       const end = start + PAGE_SIZE;
-      contactsState.slice(start, end).forEach(renderContact);
-      updatePagination();
+      contactsState
+        .slice(start, end)
+        .forEach(contact => renderContact(contact, String(contact.id) === editingContactId ? "edit" : "view"));
+    }
+
+    function getContactById(id) {
+      return contactsState.find(contact => String(contact.id) === String(id));
+    }
+
+    function getDraftFromRow(row) {
+      return validateContactDraft({
+        id: row.dataset.contactId,
+        name: row.querySelector('[data-field="name"]')?.value,
+        email: row.querySelector('[data-field="email"]')?.value,
+        message: row.querySelector('[data-field="message"]')?.value
+      });
+    }
+
+    function setRowBusy(row, isBusy) {
+      row.querySelectorAll("button, input, textarea").forEach(control => {
+        control.disabled = isBusy;
+        control.classList.toggle("opacity-60", isBusy);
+        control.classList.toggle("cursor-wait", isBusy);
+      });
+    }
+
+    async function postContactMutation(action, payload) {
+      await fetch(URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({
+          ...payload,
+          action,
+          token: localStorage.getItem(STORAGE_KEYS.token)
+        })
+      });
+    }
+
+    async function refreshContactsFromSheets() {
+      localStorage.removeItem(CONTACTS_CACHE_KEY);
+      await muatMesej({ skipCache: true, keepPage: true, silent: true });
     }
 
     prevPage.addEventListener("click", () => {
@@ -324,6 +419,78 @@
       if (currentPage >= totalPages) return;
       currentPage += 1;
       renderContacts(contactsState, { keepPage: true });
+    });
+
+    list.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+
+      const row = button.closest("tr[data-contact-id]");
+      const contactId = row?.dataset.contactId;
+      if (!row || !contactId) return;
+
+      if (button.dataset.action === "edit") {
+        editingContactId = contactId;
+        renderContacts(contactsState, { keepPage: true });
+        return;
+      }
+
+      if (button.dataset.action === "cancel") {
+        editingContactId = "";
+        renderContacts(contactsState, { keepPage: true });
+        return;
+      }
+
+      if (button.dataset.action === "save") {
+        const draft = getDraftFromRow(row);
+        if (!draft.ok) {
+          showToast("Semak semula", draft.error, "error");
+          return;
+        }
+
+        setRowBusy(row, true);
+        try {
+          await postContactMutation("contacts.update", draft.data);
+          const nextContacts = applyContactUpdate(contactsState, draft.data);
+          editingContactId = "";
+          saveContactsCache(nextContacts);
+          renderContacts(nextContacts, { keepPage: true });
+          showToast("Dikemaskini", "Rekod jadual telah dikemaskini.", "success");
+          await refreshContactsFromSheets();
+        } catch (error) {
+          setRowBusy(row, false);
+          showToast("Ralat", "Rekod tidak dapat dikemaskini. Sila cuba lagi.", "error");
+        }
+        return;
+      }
+
+      if (button.dataset.action === "delete") {
+        if (button.dataset.confirm !== "true") {
+          button.dataset.confirm = "true";
+          button.textContent = "Sahkan padam";
+          setTimeout(() => {
+            if (!button.isConnected) return;
+            button.dataset.confirm = "";
+            button.textContent = "Padam";
+          }, 3500);
+          showToast("Pengesahan", "Klik sekali lagi untuk padam rekod ini.", "info");
+          return;
+        }
+
+        const contact = getContactById(contactId);
+        setRowBusy(row, true);
+        try {
+          await postContactMutation("contacts.delete", { id: contactId });
+          const nextContacts = removeContactById(contactsState, contactId);
+          saveContactsCache(nextContacts);
+          renderContacts(nextContacts, { keepPage: true });
+          showToast("Dipadam", `Rekod ${contact?.name || ""} telah dipadam.`, "success");
+          await refreshContactsFromSheets();
+        } catch (error) {
+          setRowBusy(row, false);
+          showToast("Ralat", "Rekod tidak dapat dipadam. Sila cuba lagi.", "error");
+        }
+      }
     });
 
     function setupSidebar() {
@@ -344,7 +511,7 @@
       goToLogin();
     });
 
-    async function muatMesej() {
+    async function muatMesej(options = {}) {
       const token = localStorage.getItem(STORAGE_KEYS.token);
       const role = localStorage.getItem(STORAGE_KEYS.role);
       if (!token) {
@@ -357,11 +524,11 @@
       }
 
       setupSidebar();
-      const cachedContacts = getCachedContacts();
+      const cachedContacts = options.skipCache ? null : getCachedContacts();
       if (cachedContacts) {
-        renderContacts(cachedContacts);
+        renderContacts(cachedContacts, { keepPage: options.keepPage });
       }
-      if (!cachedContacts) showLoadingState();
+      if (!cachedContacts && !options.silent) showLoadingState();
 
       try {
         const params = new URLSearchParams({ action: "getContacts", token });
@@ -378,7 +545,7 @@
 
         const contacts = Array.isArray(data.contacts) ? data.contacts : [];
         saveContactsCache(contacts);
-        renderContacts(contacts);
+        renderContacts(contacts, { keepPage: options.keepPage });
       } catch (error) {
         if (cachedContacts) {
           showToast("Makluman", "Data lama dipaparkan sementara sambungan Google Sheets gagal.", "info");

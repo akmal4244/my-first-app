@@ -1,7 +1,7 @@
 # SPRAD V2 Phase 1 Implementation Notes
 
 Tarikh: 2026-06-19
-Domain baharu: `sprad.akmalmarvis.com`
+URL GitHub Pages: `https://akmal4244.github.io/sprad/`
 Skop: Foundation selamat tanpa memutuskan sistem GitHub Pages + Apps Script sedia ada.
 
 ## Matlamat Fasa 1
@@ -22,7 +22,7 @@ Keputusan penting:
 
 | Kawasan | Perubahan |
 | --- | --- |
-| Domain | `CNAME` ditukar kepada `sprad.akmalmarvis.com`. |
+| Domain | Custom domain dibuang; sistem kembali menggunakan URL default GitHub Pages. |
 | Dokumentasi | Blueprint V2 disimpan di `docs/SPRAD_V2_SYSTEM_BLUEPRINT.md`. |
 | Config | API URL dan storage key dipusatkan di `assets/js/config.js`. |
 | Risk Engine | Modul `assets/js/core/risk-engine.js` mengira skor dan tahap risiko. |
@@ -52,17 +52,15 @@ Borang V2 menghantar data baharu seperti `likelihood`, `impact`, `risk_score`, `
 
 Untuk backend lama, field `message` dibina semula sebagai teks terstruktur. Ini memastikan sheet `contacts` masih menerima data walaupun Apps Script live belum dinaik taraf.
 
-## Arahan DNS
+## Domain
 
-Untuk domain `sprad.akmalmarvis.com`, DNS pada domain `akmalmarvis.com` perlu mempunyai rekod:
+Sistem menggunakan URL default GitHub Pages:
 
 ```text
-Type: CNAME
-Name/Host: sprad
-Value/Target: akmal4244.github.io
+https://akmal4244.github.io/sprad/
 ```
 
-Selepas DNS resolve, GitHub Pages boleh enforce HTTPS untuk domain ini.
+Fail `CNAME` tidak digunakan supaya GitHub Pages tidak bertukar semula kepada custom domain.
 
 ## Ujian Wajib Fasa 1
 

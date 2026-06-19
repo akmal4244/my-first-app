@@ -141,6 +141,8 @@ function doPost(e) {
     if (body.action === "findings.create" || body.action === "findings.create.legacy") {
       return saveFindingMutation_(body);
     }
+    if (body.action === "contacts.update") return updateContact(body);
+    if (body.action === "contacts.delete") return deleteContact(body);
     return saveContact(body);
   } catch (err) {
     console.error(err);
@@ -496,6 +498,98 @@ function getContacts(user) {
   return json({ ok: true, contacts });
 }
 
+function updateContact(body) {
+  const user = validateToken(body.token);
+  if (!user) return json({ ok: false, error: "invalid token" });
+  if (user.role !== ROLE_ADMIN) return json({ ok: false, error: "forbidden" });
+
+  const contact = {
+    id: clean_(body.id),
+    name: clean_(body.name),
+    email: clean_(body.email),
+    message: clean_(body.message)
+  };
+
+  if (!contact.id) return json({ ok: false, error: "missing id" });
+  if (!contact.name || !contact.email || !contact.message) {
+    return json({ ok: false, error: "missing fields" });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) {
+    return json({ ok: false, error: "invalid email" });
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+
+  try {
+    fixMisalignedContactRows_();
+    const found = findContactRowById_(contact.id);
+    if (!found) return json({ ok: false, error: "contact not found" });
+
+    const beforeJson = JSON.stringify(contactRowToObject_(found.values));
+    found.sheet
+      .getRange(found.rowNumber, 2, 1, 3)
+      .setValues([[contact.name, contact.email, contact.message]]);
+
+    appendAuditLog_({
+      institutionId: DEFAULT_INSTITUTION_ID,
+      userId: user.id,
+      action: "contacts.update",
+      entityType: "contact",
+      entityId: contact.id,
+      requestId: clean_(body.request_id || body.requestId || ""),
+      beforeJson,
+      afterJson: JSON.stringify(contact)
+    });
+
+    return json({
+      ok: true,
+      contact: {
+        ...contact,
+        created_at: formatValue_(found.values[4])
+      }
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function deleteContact(body) {
+  const user = validateToken(body.token);
+  if (!user) return json({ ok: false, error: "invalid token" });
+  if (user.role !== ROLE_ADMIN) return json({ ok: false, error: "forbidden" });
+
+  const id = clean_(body.id);
+  if (!id) return json({ ok: false, error: "missing id" });
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+
+  try {
+    fixMisalignedContactRows_();
+    const found = findContactRowById_(id);
+    if (!found) return json({ ok: false, error: "contact not found" });
+
+    const beforeJson = JSON.stringify(contactRowToObject_(found.values));
+    found.sheet.deleteRow(found.rowNumber);
+
+    appendAuditLog_({
+      institutionId: DEFAULT_INSTITUTION_ID,
+      userId: user.id,
+      action: "contacts.delete",
+      entityType: "contact",
+      entityId: id,
+      requestId: clean_(body.request_id || body.requestId || ""),
+      beforeJson,
+      afterJson: ""
+    });
+
+    return json({ ok: true, id });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function getRiskMatrix() {
   return json({
     ok: true,
@@ -816,6 +910,36 @@ function appendLegacyContact_(contact) {
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName(SHEET_CONTACTS)
     .appendRow([Date.now(), clean_(contact.name), clean_(contact.email), clean_(contact.message), new Date()]);
+}
+
+function findContactRowById_(id) {
+  id = clean_(id);
+  if (!id) return null;
+
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_CONTACTS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+
+  const rows = sheet
+    .getRange(2, 1, lastRow - 1, HEADERS.contacts.length)
+    .getValues();
+
+  for (let index = 0; index < rows.length; index++) {
+    if (String(rows[index][0] || "") === id) {
+      return {
+        sheet,
+        rowNumber: index + 2,
+        values: rows[index]
+      };
+    }
+  }
+  return null;
+}
+
+function contactRowToObject_(row) {
+  return Object.fromEntries(
+    HEADERS.contacts.map((header, index) => [header, formatValue_(row[index])])
+  );
 }
 
 function getScriptCache_() {
