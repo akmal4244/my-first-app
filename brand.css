@@ -227,9 +227,50 @@ table thead {
   background: #f8fafc !important;
 }
 
+.sprad-table-shell {
+  overflow: visible;
+  width: 100%;
+}
+
 table {
   border-collapse: separate;
   border-spacing: 0;
+}
+
+.sprad-crud-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.sprad-crud-table th,
+.sprad-crud-table td {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.sprad-crud-table th:nth-child(1),
+.sprad-crud-table td:nth-child(1) {
+  width: 16%;
+}
+
+.sprad-crud-table th:nth-child(2),
+.sprad-crud-table td:nth-child(2) {
+  width: 18%;
+}
+
+.sprad-crud-table th:nth-child(3),
+.sprad-crud-table td:nth-child(3) {
+  width: 32%;
+}
+
+.sprad-crud-table th:nth-child(4),
+.sprad-crud-table td:nth-child(4) {
+  width: 16%;
+}
+
+.sprad-crud-table th:nth-child(5),
+.sprad-crud-table td:nth-child(5) {
+  width: 18%;
 }
 
 th,
@@ -278,15 +319,77 @@ tbody tr:hover {
     padding-top: 1rem !important;
   }
 
-  table {
-    min-width: 860px;
-  }
-
   #toast {
     left: 1rem !important;
     right: 1rem !important;
     top: 4.75rem !important;
     width: auto !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .sprad-crud-table,
+  .sprad-crud-table tbody,
+  .sprad-crud-table tr,
+  .sprad-crud-table td {
+    display: block;
+    width: 100% !important;
+  }
+
+  .sprad-crud-table {
+    table-layout: auto;
+  }
+
+  .sprad-crud-table thead {
+    display: none;
+  }
+
+  .sprad-crud-table tbody {
+    display: grid;
+    gap: .75rem;
+    padding: .75rem;
+  }
+
+  .sprad-crud-table tr {
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, .28);
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .sprad-crud-table td {
+    display: grid;
+    grid-template-columns: minmax(5.25rem, 34%) minmax(0, 1fr);
+    gap: .75rem;
+    border-top: 1px solid rgba(226, 232, 240, .85);
+    padding: .8rem 1rem !important;
+    text-align: left !important;
+  }
+
+  .sprad-crud-table td:first-child {
+    border-top: 0;
+  }
+
+  .sprad-crud-table td::before {
+    content: attr(data-label);
+    color: #94a3b8;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .sprad-crud-table td[colspan] {
+    display: block;
+    text-align: center !important;
+  }
+
+  .sprad-crud-table td[colspan]::before {
+    content: none;
+  }
+
+  .sprad-crud-table td > .flex {
+    justify-content: flex-start;
   }
 }
 

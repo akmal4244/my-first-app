@@ -114,8 +114,8 @@
         <div class="border-b border-slate-100 bg-slate-50 px-5 py-4">
           <p class="text-xs font-extrabold uppercase tracking-widest text-slate-500">Jadual penilaian</p>
         </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-100">
+        <div class="sprad-table-shell">
+          <table class="sprad-crud-table w-full divide-y divide-slate-100">
             <thead class="bg-white">
               <tr>
                 <th class="px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Nama</th>
@@ -236,10 +236,12 @@
       Array.from({ length: PAGE_SIZE }).forEach((_, rowIndex) => {
         const row = document.createElement("tr");
         row.className = "animate-pulse";
-        [28, 34, 52, 24, 22].forEach((width, cellIndex) => {
+        ["Nama", "E-mel", "Mesej", "Tarikh", "Tindakan"].forEach((label, cellIndex) => {
+          const widths = [28, 34, 52, 24, 22];
           const cell = document.createElement("td");
+          cell.dataset.label = label;
           cell.className = "px-4 py-4";
-          cell.innerHTML = `<span class="block h-4 rounded ${cellIndex === 2 ? "bg-slate-200" : "bg-slate-100"}" style="width:${Math.max(22, width - rowIndex * 3)}%"></span>`;
+          cell.innerHTML = `<span class="block h-4 rounded ${cellIndex === 2 ? "bg-slate-200" : "bg-slate-100"}" style="width:${Math.max(22, widths[cellIndex] - rowIndex * 3)}%"></span>`;
           row.append(cell);
         });
         list.append(row);
@@ -301,31 +303,40 @@
       const actions = document.createElement("td");
 
       row.className = "align-top transition hover:bg-slate-50";
-      name.className = "min-w-[130px] px-4 py-4 text-sm font-extrabold text-slate-900";
-      email.className = "min-w-[160px] px-4 py-4 text-xs font-bold text-slate-500";
-      message.className = "min-w-[240px] px-4 py-4 text-sm font-medium leading-6 text-slate-700";
-      createdAt.className = "whitespace-nowrap px-4 py-4 text-[11px] font-extrabold uppercase tracking-widest text-slate-400";
-      actions.className = "whitespace-nowrap px-4 py-4 text-right";
+      name.className = "px-4 py-4 text-sm font-extrabold text-slate-900";
+      email.className = "px-4 py-4 text-xs font-bold text-slate-500";
+      message.className = "px-4 py-4 text-sm font-medium leading-6 text-slate-700";
+      createdAt.className = "px-4 py-4 text-[11px] font-extrabold uppercase tracking-widest text-slate-400";
+      actions.className = "px-4 py-4 text-right";
+      name.dataset.label = "Nama";
+      email.dataset.label = "E-mel";
+      message.dataset.label = "Mesej";
+      createdAt.dataset.label = "Tarikh";
+      actions.dataset.label = "Tindakan";
       createdAt.textContent = contact.created_at || "";
 
       if (mode === "edit") {
         name.innerHTML = `<input data-field="name" value="${escapeAttribute(contact.name || "")}" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-900 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100">`;
         email.innerHTML = `<input data-field="email" type="email" value="${escapeAttribute(contact.email || "")}" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100">`;
         message.innerHTML = `<textarea data-field="message" class="min-h-24 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold leading-6 text-slate-700 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100">${escapeHtml(contact.message || "")}</textarea>`;
-        actions.append(
+        const actionGroup = document.createElement("div");
+        actionGroup.className = "flex flex-wrap justify-end gap-2";
+        actionGroup.append(
           createActionButton("Simpan", "save", "primary"),
-          document.createTextNode(" "),
           createActionButton("Batal", "cancel", "neutral")
         );
+        actions.append(actionGroup);
       } else {
         name.textContent = contact.name || "";
         email.textContent = contact.email || "";
         message.textContent = contact.message || "";
-        actions.append(
+        const actionGroup = document.createElement("div");
+        actionGroup.className = "flex flex-wrap justify-end gap-2";
+        actionGroup.append(
           createActionButton("Ubah", "edit", "primary"),
-          document.createTextNode(" "),
           createActionButton("Padam", "delete", "danger")
         );
+        actions.append(actionGroup);
       }
 
       row.append(name, email, message, createdAt, actions);
