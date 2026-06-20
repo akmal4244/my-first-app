@@ -26,6 +26,7 @@ const aiIntakeHtml = read("ai-intake.html");
 const aiIntakePageSource = read("assets/js/pages/ai-intake-page.js");
 const appShellSource = read("assets/js/components/app-shell.js");
 const apiSource = read("assets/js/core/api.js");
+const loginSource = read("login.html");
 const systemHealthHtml = read("system-health.html");
 const systemHealthPageSource = read("assets/js/pages/system-health-page.js");
 
@@ -177,6 +178,19 @@ test("frontend logout revokes backend sessions before clearing local state", () 
   assert.match(apiSource, /action: "auth\.logout"/, "API helper must target auth.logout");
   assert.match(appShellSource, /revokeSession\(token\)/, "shared shell logout must revoke backend session");
   assert.match(formPageSource, /revokeSession\(token\)/, "assessment form logout must revoke backend session");
+});
+
+test("login blocks incomplete legacy API responses before redirecting", () => {
+  assert.match(
+    loginSource,
+    /!data\.token \|\| \(!role && !v2Role\)/,
+    "login must reject success responses that do not include token and role metadata"
+  );
+  assert.match(
+    loginSource,
+    /API SPRAD belum dikemaskini/,
+    "login must explain that Apps Script needs redeployment when API metadata is missing"
+  );
 });
 
 test("legacy public assessment form supports multiple audit issues in one submission", () => {

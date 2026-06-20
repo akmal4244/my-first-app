@@ -205,20 +205,32 @@
 
         if (data.ok) {
           const role = (data.role || "").toLowerCase();
+          const v2Role = (data.v2_role || "").toLowerCase();
+          if (!data.token || (!role && !v2Role)) {
+            setLoading(false);
+            localStorage.removeItem(STORAGE_KEYS.token);
+            localStorage.removeItem(STORAGE_KEYS.role);
+            localStorage.removeItem(STORAGE_KEYS.v2Role);
+            localStorage.removeItem(STORAGE_KEYS.userId);
+            localStorage.removeItem(STORAGE_KEYS.institutionId);
+            msg.textContent = "API SPRAD belum dikemaskini. Sila redeploy Apps Script terkini.";
+            showToast("Perlu kemaskini", msg.textContent, "error");
+            return;
+          }
           localStorage.setItem(STORAGE_KEYS.token, data.token);
           if (role) {
             localStorage.setItem(STORAGE_KEYS.role, role);
           } else {
             localStorage.removeItem(STORAGE_KEYS.role);
           }
-          if (data.v2_role) localStorage.setItem(STORAGE_KEYS.v2Role, data.v2_role);
+          if (v2Role) localStorage.setItem(STORAGE_KEYS.v2Role, v2Role);
           else localStorage.removeItem(STORAGE_KEYS.v2Role);
           if (data.user_id) localStorage.setItem(STORAGE_KEYS.userId, data.user_id);
           else localStorage.removeItem(STORAGE_KEYS.userId);
           if (data.institution_id) localStorage.setItem(STORAGE_KEYS.institutionId, data.institution_id);
           else localStorage.removeItem(STORAGE_KEYS.institutionId);
           saveRememberedCredentials();
-          window.location.href = role === "pengguna" ? "form" : "dashboard";
+          window.location.href = role === "pengguna" || v2Role === "auditor" ? "form" : "dashboard";
           return;
         }
         setLoading(false);
