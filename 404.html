@@ -9,7 +9,7 @@
 <body>
   <script>
     const cleanPath = window.location.pathname.replace(/\/$/, "");
-    const routeMatch = cleanPath.match(/^(.*)\/(login|register|form|view|dashboard|institutions|org-units|users|settings|audit-cycles|audits|findings|corrective-actions|reports|audit-logs)$/);
+    const routeMatch = cleanPath.match(/^(.*)\/(login|register|form|view|dashboard|institutions|institution-form|org-units|users|settings|audit-cycles|audits|findings|finding-form|finding-view|corrective-actions|actions|reports|report-print|audit-logs)$/);
 
     if (routeMatch) {
       const [, basePath, route] = routeMatch;
