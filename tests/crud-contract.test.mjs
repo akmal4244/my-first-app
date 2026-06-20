@@ -136,8 +136,22 @@ test("frontend hides disallowed CRUD controls before backend rejection", () => {
   assert.match(auditWorkspaceSource, /function canRestoreRecord_/, "audit workspace must decide restore permission");
   assert.match(auditWorkspaceSource, /function canRunWorkflowAction_/, "audit workspace must filter workflow actions per record");
   assert.doesNotMatch(auditWorkspaceSource, /name: "workflow_status"/, "finding status must not be a direct edit field");
+  assert.match(auditWorkspaceSource, /route: "findings"[\s\S]+permissions: \["findings\.create", "findings\.review"\]/, "finding page must not be accessible with dashboard-only report permission");
   assert.match(dataMasterPageSource, /permissions:\s*\["institutions\.manage"\]/, "institution page must be super-admin only");
   assert.match(dataMasterPageSource, /requireSession\(\{\s*permissions: definition\.permissions/, "data master pages must use page-level permissions");
+});
+
+test("backend restricts operational list endpoints away from viewer-only sessions", () => {
+  assert.match(
+    codeGs,
+    /function listFindings_\(user, p\) \{\s*requireRole_\(user, \[ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN, ROLE_AUDITOR, ROLE_REVIEWER\]\);/,
+    "findings.list must require an operational audit role"
+  );
+  assert.match(
+    codeGs,
+    /function listCorrectiveActions_\(user, p\) \{\s*requireRole_\(user, \[ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN, ROLE_AUDITOR, ROLE_REVIEWER\]\);/,
+    "correctiveActions.list must require an operational audit role"
+  );
 });
 
 test("legacy public assessment form supports multiple audit issues in one submission", () => {

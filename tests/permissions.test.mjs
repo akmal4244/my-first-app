@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   canAccessInstitution,
   canManageFinding,
+  getVisibleNavLinks,
   hasPermission,
   hasRoleAtLeast,
   normalizeRole
@@ -49,4 +50,24 @@ test("allows auditor to manage only own draft or returned findings", () => {
     created_by: "user_2",
     workflow_status: "draft"
   }), false);
+});
+
+test("filters sidebar navigation by role permissions", () => {
+  const auditorRoutes = getVisibleNavLinks("auditor").map(link => link.route);
+  assert.deepEqual(auditorRoutes, [
+    "dashboard",
+    "form",
+    "ai-intake",
+    "findings",
+    "corrective-actions",
+    "reports"
+  ]);
+
+  const viewerRoutes = getVisibleNavLinks("viewer").map(link => link.route);
+  assert.deepEqual(viewerRoutes, ["dashboard", "reports"]);
+
+  const adminRoutes = getVisibleNavLinks("institution_admin").map(link => link.route);
+  assert.equal(adminRoutes.includes("users"), true);
+  assert.equal(adminRoutes.includes("settings"), true);
+  assert.equal(adminRoutes.includes("institutions"), false);
 });

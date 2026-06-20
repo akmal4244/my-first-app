@@ -1,4 +1,6 @@
 import { getApiUrl, STORAGE_KEYS } from "../config.js";
+import { getRoleLabel } from "../core/data-master-utils.js";
+import { getVisibleNavLinks, normalizeRole } from "../core/permissions.js";
 import { calculateRisk } from "../core/risk-engine.js";
 import { buildMutationRequest, pollMutationReceipt } from "../core/mutation-utils.js";
 import {
@@ -350,36 +352,24 @@ function setLoading(isLoading, text = "Sedang menghantar...") {
 }
 
 function setupSidebar() {
-  const role = (localStorage.getItem(STORAGE_KEYS.role) || "pengguna").toLowerCase();
-  const isAdmin = role === "pentadbir";
-  sidebarRole.textContent = isAdmin ? "Pentadbir" : "Pengguna";
+  const role = normalizeRole(localStorage.getItem(STORAGE_KEYS.v2Role) || localStorage.getItem(STORAGE_KEYS.role) || "viewer");
+  const isAdmin = role === "super_admin" || role === "institution_admin";
+  sidebarRole.textContent = getRoleLabel(role);
   sidebarRole.className = isAdmin
     ? "rounded-full bg-blue-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-blue-700"
     : "rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-emerald-700";
 
-  document.querySelectorAll("[data-pentadbir-only]").forEach((item) => {
-    const note = item.querySelector("[data-locked-note]");
-    if (isAdmin) {
-      item.className = "flex items-start gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900";
-      item.removeAttribute("aria-disabled");
-      if (note) {
-        note.dataset.lockedText = note.dataset.lockedText || note.textContent;
-        note.textContent = "";
-        note.classList.add("hidden");
-      }
-      return;
-    }
-    item.className = "flex items-start gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-400 opacity-70";
-    item.setAttribute("aria-disabled", "true");
-    if (note) {
-      note.textContent = note.dataset.lockedText || "Akses pentadbir diperlukan";
-      note.classList.remove("hidden");
-    }
-    item.addEventListener("click", (event) => {
-      event.preventDefault();
-      showToast("Akses pentadbir diperlukan", "Menu ini hanya untuk pentadbir.", "info");
-    });
-  });
+  const navContainer = document.querySelector("aside .mt-4.space-y-2");
+  if (!navContainer) return;
+  navContainer.innerHTML = getVisibleNavLinks(role)
+    .map(({ route, icon, label }) => {
+      const active = route === "form";
+      const className = active
+        ? "flex items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-sm font-extrabold text-blue-600"
+        : "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900";
+      return `<a href="${route}" data-nav-route="${route}" class="${className}"><i class="fa-solid ${icon} w-4"></i>${label}</a>`;
+    })
+    .join("");
 }
 
 function logoutToLogin() {

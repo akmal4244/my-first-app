@@ -94,7 +94,7 @@ const PAGES = {
     route: "findings",
     resource: "findings",
     cacheKey: STORAGE_KEYS.findingsCache,
-    permissions: ["findings.create", "findings.review", "reports.view"],
+    permissions: ["findings.create", "findings.review"],
     title: "Penemuan Audit",
     eyebrow: "Fasa 3 dan 4",
     description: "Urus penemuan, pengiraan risiko, semakan, kelulusan dan kaitan PTJ.",

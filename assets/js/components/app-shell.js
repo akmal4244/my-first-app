@@ -1,6 +1,6 @@
 import { STORAGE_KEYS } from "../config.js";
 import { getRoleLabel, getRecordStatusLabel } from "../core/data-master-utils.js";
-import { hasPermission, normalizeRole } from "../core/permissions.js";
+import { getVisibleNavLinks, hasPermission, normalizeRole } from "../core/permissions.js";
 
 let toastTimer;
 
@@ -98,8 +98,9 @@ export function setupLogoutButton() {
 
 export function setupSidebar(currentRoute, session = getSessionContext()) {
   const navContainer = document.querySelector("aside .mt-4.space-y-2");
-  if (navContainer && !navContainer.querySelector('[data-nav-route="dashboard"]')) {
-    navContainer.innerHTML = standardSidebarNav();
+  if (navContainer) {
+    const role = normalizeRole(session.v2Role || session.legacyRole);
+    navContainer.innerHTML = standardSidebarNav(role);
   }
 
   const sidebarRole = document.querySelector("#sidebarRole");
@@ -117,24 +118,9 @@ export function setupSidebar(currentRoute, session = getSessionContext()) {
   });
 }
 
-function standardSidebarNav() {
-  const links = [
-    ["dashboard", "fa-chart-line", "Dashboard"],
-    ["form", "fa-clipboard-list", "Penilaian risiko"],
-    ["ai-intake", "fa-wand-magic-sparkles", "AI Intake"],
-    ["audit-cycles", "fa-calendar-days", "Kitaran audit"],
-    ["audits", "fa-file-signature", "Audit"],
-    ["findings", "fa-triangle-exclamation", "Penemuan"],
-    ["corrective-actions", "fa-list-check", "Tindakan"],
-    ["reports", "fa-print", "Laporan"],
-    ["audit-logs", "fa-shield-halved", "Log audit"],
-    ["institutions", "fa-building-columns", "Institusi"],
-    ["org-units", "fa-sitemap", "PTJ / Unit"],
-    ["users", "fa-users-gear", "Pengguna"],
-    ["settings", "fa-sliders", "Tetapan"]
-  ];
-  return links
-    .map(([route, icon, label]) => `<a href="${route}" data-nav-route="${route}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"><i class="fa-solid ${icon} w-4"></i>${label}</a>`)
+function standardSidebarNav(role) {
+  return getVisibleNavLinks(role)
+    .map(({ route, icon, label }) => `<a href="${route}" data-nav-route="${route}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"><i class="fa-solid ${icon} w-4"></i>${label}</a>`)
     .join("");
 }
 

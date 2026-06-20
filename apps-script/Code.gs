@@ -964,6 +964,7 @@ function listUsers_(user, p) {
 }
 
 function listFindings_(user, p) {
+  requireRole_(user, [ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN, ROLE_AUDITOR, ROLE_REVIEWER]);
   const records = getFindingsForUser_(user, p);
   return apiOk_({ findings: records });
 }
@@ -980,6 +981,7 @@ function getFinding_(user, id) {
 }
 
 function listCorrectiveActions_(user, p) {
+  requireRole_(user, [ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN, ROLE_AUDITOR, ROLE_REVIEWER]);
   const includeArchived = includeArchived_(p);
   const records = getSheetObjects_(SHEET_CORRECTIVE_ACTIONS)
     .filter(record => includeArchived || !record.deleted_at)
