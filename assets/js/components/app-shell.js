@@ -1,5 +1,6 @@
 import { STORAGE_KEYS } from "../config.js";
 import { revokeSession } from "../core/api.js";
+import { confirmAction, confirmationCopyForAction } from "../core/action-confirmation.js";
 import { getRoleLabel, getRecordStatusLabel } from "../core/data-master-utils.js";
 import { getVisibleNavLinks, hasPermission, normalizeRole } from "../core/permissions.js";
 
@@ -83,7 +84,9 @@ export function clearCredentialsIfNotRemembered() {
   localStorage.removeItem(STORAGE_KEYS.username);
 }
 
-export function logoutToLogin() {
+export async function logoutToLogin() {
+  const confirmed = await confirmAction(confirmationCopyForAction("auth.logout"));
+  if (!confirmed) return;
   const token = getSessionContext().token;
   clearCredentialsIfNotRemembered();
   localStorage.removeItem(STORAGE_KEYS.token);
@@ -97,7 +100,7 @@ export function logoutToLogin() {
 }
 
 export function setupLogoutButton() {
-  document.querySelector("#logout")?.addEventListener("click", logoutToLogin);
+  document.querySelector("#logout")?.addEventListener("click", () => logoutToLogin());
 }
 
 export function setupSidebar(currentRoute, session = getSessionContext()) {
@@ -116,15 +119,13 @@ export function setupSidebar(currentRoute, session = getSessionContext()) {
   document.querySelectorAll("[data-nav-route]").forEach((link) => {
     const route = link.dataset.navRoute;
     const active = route === currentRoute;
-    link.className = active
-      ? "flex items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-sm font-extrabold text-blue-600"
-      : "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900";
+    link.className = active ? "menu-item menu-active" : "menu-item";
   });
 }
 
 function standardSidebarNav(role) {
   return getVisibleNavLinks(role)
-    .map(({ route, icon, label }) => `<a href="${route}" data-nav-route="${route}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"><i class="fa-solid ${icon} w-4"></i>${label}</a>`)
+    .map(({ route, icon, label }) => `<a href="${route}" data-nav-route="${route}" class="menu-item"><i class="fa-solid ${icon} w-4"></i>${label}</a>`)
     .join("");
 }
 

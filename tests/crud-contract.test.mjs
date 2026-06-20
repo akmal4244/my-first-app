@@ -26,7 +26,9 @@ const aiIntakeHtml = read("ai-intake.html");
 const aiIntakePageSource = read("assets/js/pages/ai-intake-page.js");
 const appShellSource = read("assets/js/components/app-shell.js");
 const apiSource = read("assets/js/core/api.js");
+const confirmationSource = read("assets/js/core/action-confirmation.js");
 const loginSource = read("login.html");
+const registerSource = read("register.html");
 const systemHealthHtml = read("system-health.html");
 const systemHealthPageSource = read("assets/js/pages/system-health-page.js");
 
@@ -178,6 +180,18 @@ test("frontend logout revokes backend sessions before clearing local state", () 
   assert.match(apiSource, /action: "auth\.logout"/, "API helper must target auth.logout");
   assert.match(appShellSource, /revokeSession\(token\)/, "shared shell logout must revoke backend session");
   assert.match(formPageSource, /revokeSession\(token\)/, "assessment form logout must revoke backend session");
+});
+
+test("frontend mutating actions require a confirmation popup", () => {
+  assert.match(confirmationSource, /id = "spradConfirmModal"/, "confirmation must use the SPRAD popup modal");
+  assert.match(frontendCrudSources, /submitDataMasterMutation[\s\S]+runConfirmedAction/, "data master mutations must confirm");
+  assert.match(frontendCrudSources, /submitAuditMutation[\s\S]+runConfirmedAction/, "audit mutations must confirm");
+  assert.match(frontendCrudSources, /submitAiMutation[\s\S]+runConfirmedAction/, "AI mutations must confirm");
+  assert.match(formPageSource, /runConfirmedAction\(/, "legacy assessment submission must confirm");
+  assert.match(registerSource, /confirmAction\(/, "registration must confirm before creating an account");
+  assert.match(appShellSource, /confirmAction\(/, "logout must confirm before clearing session");
+  assert.doesNotMatch(auditWorkspaceSource, /\bconfirm\(/, "audit workspace must not use native confirm");
+  assert.doesNotMatch(dataMasterPageSource, /dataset\.confirm/, "data master must not use double-click confirmation");
 });
 
 test("login blocks incomplete legacy API responses before redirecting", () => {

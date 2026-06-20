@@ -157,6 +157,13 @@
 
   <script type="module">
     import { getApiUrl, STORAGE_KEYS } from "./assets/js/config.js";
+    import { revokeSession } from "./assets/js/core/api.js";
+    import {
+      confirmAction,
+      confirmationCopyForAction,
+      isActionCancelled,
+      runConfirmedAction
+    } from "./assets/js/core/action-confirmation.js";
     import {
       applyContactUpdate,
       removeContactById,
@@ -428,19 +435,21 @@
     }
 
     async function postContactMutation(action, payload) {
-      const request = buildMutationRequest(action, localStorage.getItem(STORAGE_KEYS.token), payload);
-      await fetch(URL, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(request)
+      return runConfirmedAction(action, async () => {
+        const request = buildMutationRequest(action, localStorage.getItem(STORAGE_KEYS.token), payload);
+        await fetch(URL, {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify(request)
+        });
+        const receipt = await pollMutationReceipt({
+          url: URL,
+          token: request.token,
+          requestId: request.request_id
+        });
+        if (receipt.status !== "success") throw new Error(receipt.error);
+        return receipt;
       });
-      const receipt = await pollMutationReceipt({
-        url: URL,
-        token: request.token,
-        requestId: request.request_id
-      });
-      if (receipt.status !== "success") throw new Error(receipt.error);
-      return receipt;
     }
 
     async function refreshContactsFromSheets() {
@@ -490,7 +499,12 @@
 
         setRowBusy(row, true);
         try {
-          await postContactMutation("contacts.update", draft.data);
+          const receipt = await postContactMutation("contacts.update", draft.data);
+          if (isActionCancelled(receipt)) {
+            setRowBusy(row, false);
+            showToast("Dibatalkan", "Kemaskini rekod tidak diteruskan.", "info");
+            return;
+          }
           const nextContacts = applyContactUpdate(contactsState, draft.data);
           editingContactId = "";
           saveContactsCache(nextContacts);
@@ -505,22 +519,15 @@
       }
 
       if (button.dataset.action === "delete") {
-        if (button.dataset.confirm !== "true") {
-          button.dataset.confirm = "true";
-          button.textContent = "Sahkan padam";
-          setTimeout(() => {
-            if (!button.isConnected) return;
-            button.dataset.confirm = "";
-            button.textContent = "Padam";
-          }, 3500);
-          showToast("Pengesahan", "Klik sekali lagi untuk padam rekod ini.", "info");
-          return;
-        }
-
         const contact = getContactById(contactId);
         setRowBusy(row, true);
         try {
-          await postContactMutation("contacts.delete", { id: contactId });
+          const receipt = await postContactMutation("contacts.delete", { id: contactId });
+          if (isActionCancelled(receipt)) {
+            setRowBusy(row, false);
+            showToast("Dibatalkan", "Padam rekod tidak diteruskan.", "info");
+            return;
+          }
           const nextContacts = removeContactById(contactsState, contactId);
           saveContactsCache(nextContacts);
           renderContacts(nextContacts, { keepPage: true });
@@ -544,14 +551,17 @@
       localStorage.removeItem(STORAGE_KEYS.username);
     }
 
-    logout.addEventListener("click", () => {
+    logout.addEventListener("click", async () => {
+      const confirmed = await confirmAction(confirmationCopyForAction("auth.logout"));
+      if (!confirmed) return;
+      const token = localStorage.getItem(STORAGE_KEYS.token) || "";
       clearCredentialsIfNotRemembered();
       localStorage.removeItem(STORAGE_KEYS.token);
       localStorage.removeItem(STORAGE_KEYS.role);
       localStorage.removeItem(STORAGE_KEYS.v2Role);
       localStorage.removeItem(STORAGE_KEYS.userId);
       localStorage.removeItem(STORAGE_KEYS.institutionId);
-      goToLogin();
+      revokeSession(token).finally(goToLogin);
     });
 
     async function muatMesej(options = {}) {

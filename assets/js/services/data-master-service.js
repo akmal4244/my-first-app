@@ -1,5 +1,6 @@
 import { getApiUrl } from "../config.js";
 import { getJson } from "../core/api.js";
+import { runConfirmedAction } from "../core/action-confirmation.js";
 import { buildDataMasterMutation, normalizeListResponse } from "../core/data-master-utils.js";
 import { postOpaqueMutation } from "../core/mutation.js";
 import { pollMutationReceipt } from "../core/mutation-utils.js";
@@ -35,14 +36,16 @@ export async function getRiskMatrix(token) {
   return response.data || {};
 }
 
-export async function submitDataMasterMutation({ action, token, payload, url = getApiUrl() }) {
-  const request = buildDataMasterMutation(action, token, payload);
-  await postOpaqueMutation(url, request);
-  const receipt = await pollMutationReceipt({
-    url,
-    token,
-    requestId: request.request_id
-  });
-  if (receipt.status !== "success") throw new Error(receipt.error || "Simpanan belum dapat disahkan.");
-  return receipt;
+export async function submitDataMasterMutation({ action, token, payload, url = getApiUrl(), confirmation = {} }) {
+  return runConfirmedAction(action, async () => {
+    const request = buildDataMasterMutation(action, token, payload);
+    await postOpaqueMutation(url, request);
+    const receipt = await pollMutationReceipt({
+      url,
+      token,
+      requestId: request.request_id
+    });
+    if (receipt.status !== "success") throw new Error(receipt.error || "Simpanan belum dapat disahkan.");
+    return receipt;
+  }, confirmation);
 }

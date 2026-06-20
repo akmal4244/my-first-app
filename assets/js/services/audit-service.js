@@ -1,5 +1,6 @@
 import { getApiUrl } from "../config.js";
 import { getJson } from "../core/api.js";
+import { runConfirmedAction } from "../core/action-confirmation.js";
 import { buildAuditMutation } from "../core/audit-workflow-utils.js";
 import { normalizeListResponse } from "../core/data-master-utils.js";
 import { postOpaqueMutation } from "../core/mutation.js";
@@ -64,16 +65,18 @@ export async function getReportDataset(token, options = {}) {
   return response.data?.report || {};
 }
 
-export async function submitAuditMutation({ action, token, payload, url = getApiUrl() }) {
-  const request = buildAuditMutation(action, token, payload);
-  await postOpaqueMutation(url, request);
-  const receipt = await pollMutationReceipt({
-    url,
-    token,
-    requestId: request.request_id,
-    attempts: 12,
-    delayMs: 1200
-  });
-  if (receipt.status !== "success") throw new Error(receipt.error || "Simpanan belum dapat disahkan.");
-  return receipt;
+export async function submitAuditMutation({ action, token, payload, url = getApiUrl(), confirmation = {} }) {
+  return runConfirmedAction(action, async () => {
+    const request = buildAuditMutation(action, token, payload);
+    await postOpaqueMutation(url, request);
+    const receipt = await pollMutationReceipt({
+      url,
+      token,
+      requestId: request.request_id,
+      attempts: 12,
+      delayMs: 1200
+    });
+    if (receipt.status !== "success") throw new Error(receipt.error || "Simpanan belum dapat disahkan.");
+    return receipt;
+  }, confirmation);
 }

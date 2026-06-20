@@ -1,5 +1,11 @@
 import { getApiUrl, STORAGE_KEYS } from "../config.js";
 import { revokeSession } from "../core/api.js";
+import {
+  confirmAction,
+  confirmationCopyForAction,
+  isActionCancelled,
+  runConfirmedAction
+} from "../core/action-confirmation.js";
 import { getRoleLabel } from "../core/data-master-utils.js";
 import { getVisibleNavLinks, normalizeRole } from "../core/permissions.js";
 import { calculateRisk } from "../core/risk-engine.js";
@@ -284,14 +290,24 @@ async function submitForm(event) {
       ...bodyPayload
     };
 
-    setLoading(true);
-    await postData(request);
-    msg.textContent = `Sedang mengesahkan ${payload.items.length} isu audit...`;
-    const receipt = await pollMutationReceipt({
-      url: URL,
-      token: request.token,
-      requestId: request.request_id
+    const receipt = await runConfirmedAction(action, async () => {
+      setLoading(true);
+      await postData(request);
+      msg.textContent = `Sedang mengesahkan ${payload.items.length} isu audit...`;
+      return pollMutationReceipt({
+        url: URL,
+        token: request.token,
+        requestId: request.request_id
+      });
+    }, {
+      subject: `${payload.items.length} isu audit`
     });
+
+    if (isActionCancelled(receipt)) {
+      msg.textContent = "Tindakan dibatalkan.";
+      showToast("Dibatalkan", "Penilaian tidak dihantar.", "info");
+      return;
+    }
 
     if (receipt.status !== "success") {
       msg.textContent = receipt.error;
@@ -365,15 +381,15 @@ function setupSidebar() {
   navContainer.innerHTML = getVisibleNavLinks(role)
     .map(({ route, icon, label }) => {
       const active = route === "form";
-      const className = active
-        ? "flex items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-sm font-extrabold text-blue-600"
-        : "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900";
+      const className = active ? "menu-item menu-active" : "menu-item";
       return `<a href="${route}" data-nav-route="${route}" class="${className}"><i class="fa-solid ${icon} w-4"></i>${label}</a>`;
     })
     .join("");
 }
 
-function logoutToLogin() {
+async function logoutToLogin() {
+  const confirmed = await confirmAction(confirmationCopyForAction("auth.logout"));
+  if (!confirmed) return;
   const token = localStorage.getItem(STORAGE_KEYS.token) || "";
   clearCredentialsIfNotRemembered();
   localStorage.removeItem(STORAGE_KEYS.token);

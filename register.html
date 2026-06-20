@@ -107,6 +107,7 @@
 
   <script type="module">
     import { getApiUrl } from "./assets/js/config.js";
+    import { confirmAction, confirmationCopyForAction } from "./assets/js/core/action-confirmation.js";
 
     const URL = getApiUrl();
     const form = document.querySelector("#registerForm");
@@ -159,6 +160,15 @@
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       msg.textContent = "";
+      const confirmed = await confirmAction(confirmationCopyForAction("register", {
+        subject: `akaun pengguna ${form.username.value}`
+      }));
+      if (!confirmed) {
+        msg.className = "min-h-6 pt-4 text-sm font-bold text-slate-500";
+        msg.textContent = "Pendaftaran dibatalkan.";
+        showToast("Dibatalkan", "Akaun baharu tidak didaftarkan.", "info");
+        return;
+      }
       setLoading(true);
       const params = new URLSearchParams({
         action: "register",

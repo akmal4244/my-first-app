@@ -102,7 +102,7 @@ function ensureShell() {
   document.body.innerHTML = `
     <div id="toast" class="fixed right-4 top-20 z-[100] hidden w-[calc(100%-2rem)] max-w-sm rounded-xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/80"><div class="flex gap-3"><div id="toastIcon" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600"><i class="fa-solid fa-circle-info"></i></div><div><p id="toastTitle" class="text-sm font-extrabold text-slate-900"></p><p id="toastText" class="mt-1 text-xs font-semibold leading-5 text-slate-500"></p></div></div></div>
     <header class="sticky top-0 z-50 h-16 border-b border-gray-100 bg-white shadow-sm"><div class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"><a href="./" class="flex items-center gap-3"><img src="https://www.akm.gov.my/templates/yootheme/cache/91/JATA%20NEGARA%20AI-01-91eac591.webp" alt="Jata Negara" class="h-10 w-10 object-contain"><div><p class="text-base font-extrabold tracking-tight text-slate-800">SPRAD</p><p class="text-[9px] font-semibold uppercase tracking-widest text-slate-500">Sistem Penilaian Risiko Audit Dalam</p></div></a><button id="logout" type="button" class="rounded-full bg-slate-900 px-4 py-2 text-xs font-extrabold text-white">Log keluar</button></div></header>
-    <main class="mx-auto grid w-full max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8">
+    <main class="mx-auto grid w-full max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:px-8">
       <aside class="self-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-20"><div class="flex items-center justify-between gap-3"><p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Ruang kerja</p><span id="sidebarRole" class="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-blue-700">SPRAD</span></div><div class="mt-4 space-y-2"></div></aside>
       <section class="grid content-start gap-5">
         <div class="brand-cover rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -111,7 +111,7 @@ function ensureShell() {
             <div class="flex items-center gap-3"><span id="statusBadge" class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-slate-600">Memuat...</span><button id="refreshBtn" class="rounded-full bg-blue-600 px-4 py-3 text-xs font-extrabold text-white"><i class="fa-solid fa-rotate-right mr-2"></i>Refresh</button></div>
           </div>
         </div>
-        <div class="grid gap-4 md:grid-cols-4">
+        <div class="admin-dashboard-grid">
           ${metric("Schema", "schemaVersion")}
           ${metric("Fasa", "completedPhases")}
           ${metric("Konfigurasi", "checkSummary")}
@@ -125,7 +125,7 @@ function ensureShell() {
 }
 
 function metric(label, id) {
-  return `<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">${label}</p><strong id="${id}" class="mt-3 block text-2xl font-extrabold text-slate-900">-</strong></div>`;
+  return `<article class="admin-stat-card"><div class="admin-stat-topline"><p class="admin-stat-label">${label}</p><div class="admin-stat-icon"><i class="fa-solid fa-chart-simple"></i></div></div><div><h3 id="${id}" class="admin-stat-value">-</h3></div></article>`;
 }
 
 function setText(id, value) {

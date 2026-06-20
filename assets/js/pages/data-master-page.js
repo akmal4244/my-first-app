@@ -17,6 +17,7 @@ import {
   validateRiskLevelDraft,
   validateUserDraft
 } from "../core/data-master-utils.js";
+import { isActionCancelled } from "../core/action-confirmation.js";
 import { escapeHtml, formatDateTime } from "../core/formatters.js";
 import { buildScopedCacheKey, readJsonStorage, writeJsonStorage } from "../core/storage.js";
 import {
@@ -301,26 +302,19 @@ async function handleCrudTableClick(event) {
   }
 
   const action = button.dataset.action === "restore" ? state.definition.restoreAction : state.definition.deleteAction;
-  const confirmText = button.dataset.action === "restore" ? "Sahkan restore" : "Sahkan";
-  if (button.dataset.confirm !== "true") {
-    button.dataset.confirm = "true";
-    button.textContent = confirmText;
-    setTimeout(() => {
-      if (!button.isConnected) return;
-      button.dataset.confirm = "";
-      button.textContent = button.dataset.action === "restore" ? "Restore" : state.definition.resource === "users" ? "Nyahaktif" : "Arkib";
-    }, 3500);
-    showToast("Pengesahan", "Klik sekali lagi untuk teruskan tindakan.", "info");
-    return;
-  }
 
   setRowBusy(row, true);
   try {
-    await submitDataMasterMutation({
+    const receipt = await submitDataMasterMutation({
       action,
       token: state.session.token,
       payload: { id }
     });
+    if (isActionCancelled(receipt)) {
+      setRowBusy(row, false);
+      showToast("Dibatalkan", "Tindakan tidak diteruskan.", "info");
+      return;
+    }
     showToast("Berjaya", "Rekod telah dikemaskini.", "success");
     resetForm();
     localStorage.removeItem(getCacheKey(state.definition.cacheResource));
@@ -345,11 +339,15 @@ async function submitCrudForm(event) {
   const action = id ? state.definition.updateAction : state.definition.createAction;
   setFormBusy(true);
   try {
-    await submitDataMasterMutation({
+    const receipt = await submitDataMasterMutation({
       action,
       token: state.session.token,
       payload: validation.data
     });
+    if (isActionCancelled(receipt)) {
+      showToast("Dibatalkan", "Simpanan tidak diteruskan.", "info");
+      return;
+    }
     showToast("Disimpan", "Rekod data induk telah disahkan oleh Apps Script.", "success");
     resetForm();
     localStorage.removeItem(getCacheKey(state.definition.cacheResource));
@@ -594,11 +592,15 @@ async function submitCategoryForm(event) {
   }
   setFormBusy(true);
   try {
-    await submitDataMasterMutation({
+    const receipt = await submitDataMasterMutation({
       action: validation.data.id ? definition.updateAction : definition.createAction,
       token: state.session.token,
       payload: validation.data
     });
+    if (isActionCancelled(receipt)) {
+      showToast("Dibatalkan", "Simpanan tidak diteruskan.", "info");
+      return;
+    }
     showToast("Disimpan", "Kategori risiko telah dikemaskini.", "success");
     resetForm();
     localStorage.removeItem(getCacheKey("settingsCache"));
@@ -628,25 +630,19 @@ async function handleCategoryAction(event) {
   }
 
   const action = button.dataset.action === "restore" ? definition.restoreAction : definition.deleteAction;
-  if (button.dataset.confirm !== "true") {
-    button.dataset.confirm = "true";
-    button.textContent = button.dataset.action === "restore" ? "Sahkan restore" : "Sahkan";
-    setTimeout(() => {
-      if (!button.isConnected) return;
-      button.dataset.confirm = "";
-      button.textContent = button.dataset.action === "restore" ? "Restore" : "Arkib";
-    }, 3500);
-    showToast("Pengesahan", "Klik sekali lagi untuk teruskan tindakan.", "info");
-    return;
-  }
 
   setRowBusy(row, true);
   try {
-    await submitDataMasterMutation({
+    const receipt = await submitDataMasterMutation({
       action,
       token: state.session.token,
       payload: { id }
     });
+    if (isActionCancelled(receipt)) {
+      setRowBusy(row, false);
+      showToast("Dibatalkan", "Tindakan tidak diteruskan.", "info");
+      return;
+    }
     showToast("Berjaya", "Kategori risiko telah dikemaskini.", "success");
     resetForm();
     localStorage.removeItem(getCacheKey("settingsCache"));
@@ -709,11 +705,15 @@ async function submitRiskLevelForm(event) {
   }
   setRiskLevelBusy(true);
   try {
-    await submitDataMasterMutation({
+    const receipt = await submitDataMasterMutation({
       action: "riskLevels.update",
       token: state.session.token,
       payload: validation.data
     });
+    if (isActionCancelled(receipt)) {
+      showToast("Dibatalkan", "Simpanan tidak diteruskan.", "info");
+      return;
+    }
     showToast("Disimpan", "Tahap risiko telah dikemaskini.", "success");
     localStorage.removeItem(getCacheKey("settingsCache"));
     resetRiskLevelForm();

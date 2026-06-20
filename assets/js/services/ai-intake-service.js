@@ -1,4 +1,5 @@
 import { getJson } from "../core/api.js";
+import { runConfirmedAction } from "../core/action-confirmation.js";
 import { postOpaqueMutation } from "../core/mutation.js";
 import { pollMutationReceipt } from "../core/mutation-utils.js";
 import { getApiUrl } from "../config.js";
@@ -18,15 +19,17 @@ export async function listAiDrafts(token, options = {}) {
   return response.data?.drafts || [];
 }
 
-export async function submitAiMutation(request, { url = getApiUrl(), attempts = 18, delayMs = 1500 } = {}) {
-  await postOpaqueMutation(url, request);
-  const receipt = await pollMutationReceipt({
-    url,
-    token: request.token,
-    requestId: request.request_id,
-    attempts,
-    delayMs
-  });
-  if (receipt.status !== "success") throw new Error(receipt.error || "Simpanan AI belum dapat disahkan.");
-  return receipt;
+export async function submitAiMutation(request, { url = getApiUrl(), attempts = 18, delayMs = 1500, confirmation = {} } = {}) {
+  return runConfirmedAction(request.action, async () => {
+    await postOpaqueMutation(url, request);
+    const receipt = await pollMutationReceipt({
+      url,
+      token: request.token,
+      requestId: request.request_id,
+      attempts,
+      delayMs
+    });
+    if (receipt.status !== "success") throw new Error(receipt.error || "Simpanan AI belum dapat disahkan.");
+    return receipt;
+  }, confirmation);
 }

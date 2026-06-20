@@ -16,6 +16,7 @@ import {
   validateCorrectiveActionDraft,
   validateFindingDraft
 } from "../core/audit-workflow-utils.js";
+import { isActionCancelled } from "../core/action-confirmation.js";
 import { filterRecords, paginateRecords } from "../core/data-master-utils.js";
 import { hasPermission, normalizeRole } from "../core/permissions.js";
 import { listAuditResource, submitAuditMutation } from "../services/audit-service.js";
@@ -523,7 +524,7 @@ async function handleListClick(event) {
       showToast("Akses terhad", "Rekod ini tidak boleh diarkib oleh peranan anda.", "warning");
       return;
     }
-    if (confirm("Arkibkan rekod ini?")) await runMutation(page.deleteAction, { id: record.id }, "Rekod diarkibkan.");
+    await runMutation(page.deleteAction, { id: record.id }, "Rekod diarkibkan.");
     return;
   }
   if (action === "restore") {
@@ -576,7 +577,12 @@ async function runMutation(action, payload, successText) {
   if (!action) return;
   setText("cacheStatus", "Menyimpan...");
   try {
-    await submitAuditMutation({ action, token: session.token, payload });
+    const receipt = await submitAuditMutation({ action, token: session.token, payload });
+    if (isActionCancelled(receipt)) {
+      showToast("Dibatalkan", "Tindakan tidak diteruskan.", "info");
+      setText("cacheStatus", "Dibatalkan");
+      return;
+    }
     clearRelatedCaches();
     showToast("Berjaya", successText, "success");
     await loadData({ force: true });
@@ -713,7 +719,7 @@ function ensureAuditShell() {
         <nav class="hidden items-center gap-6 text-xs font-bold uppercase tracking-wide text-slate-600 sm:flex"><a href="dashboard" class="hover:text-blue-600">Dashboard</a><button id="logout" type="button" class="rounded-full bg-slate-900 px-4 py-2 text-white transition hover:bg-black">Log keluar</button></nav>
       </div>
     </header>
-    <main class="mx-auto grid w-full max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8">
+    <main class="mx-auto grid w-full max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:px-8">
       <aside class="self-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-20">
         <div class="flex items-center justify-between gap-3"><p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Ruang kerja</p><span id="sidebarRole" class="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-blue-700">SPRAD</span></div>
         <div class="mt-4 space-y-2">
@@ -735,7 +741,7 @@ function ensureAuditShell() {
       </aside>
       <section class="grid content-start gap-5">
         <div class="brand-cover rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p id="pageEyebrow" class="text-xs font-extrabold uppercase tracking-widest text-blue-600"></p><h1 id="pageTitle" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl"></h1><p id="pageDescription" class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-500"></p></div>
-        <div class="grid gap-4 md:grid-cols-4"><div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Jumlah</p><p id="totalCount" class="mt-3 text-3xl font-extrabold text-slate-900">0</p></div><div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Aktif</p><p id="activeCount" class="mt-3 text-3xl font-extrabold text-emerald-600">0</p></div><div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Arkib</p><p id="archivedCount" class="mt-3 text-3xl font-extrabold text-amber-600">0</p></div><div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Status data</p><p id="cacheStatus" class="mt-3 text-lg font-extrabold text-blue-700">-</p></div></div>
+        <div class="admin-dashboard-grid"><article class="admin-stat-card admin-stat-card--primary"><div class="admin-stat-topline"><p class="admin-stat-label">Jumlah</p><div class="admin-stat-icon"><i class="fa-solid fa-database"></i></div></div><div><h3 id="totalCount" class="admin-stat-value">0</h3></div></article><article class="admin-stat-card"><div class="admin-stat-topline"><p class="admin-stat-label">Aktif</p><span class="admin-stat-badge admin-stat-badge--active">Aktif</span></div><div><h3 id="activeCount" class="admin-stat-value">0</h3></div></article><article class="admin-stat-card"><div class="admin-stat-topline"><p class="admin-stat-label">Arkib</p><span class="admin-stat-badge admin-stat-badge--warning">Arkib</span></div><div><h3 id="archivedCount" class="admin-stat-value">0</h3></div></article><article class="admin-stat-card"><div class="admin-stat-topline"><p class="admin-stat-label">Status data</p><div class="admin-stat-icon"><i class="fa-solid fa-signal"></i></div></div><div><h3 id="cacheStatus" class="admin-stat-note">-</h3></div></article></div>
         <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_390px]">
           <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div class="grid gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"><input id="search" type="search" placeholder="Cari rekod..." class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold outline-none"><label class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-extrabold text-slate-600"><input id="includeArchived" type="checkbox" class="h-4 w-4">Arkib</label><button id="refreshBtn" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-extrabold text-slate-600"><i class="fa-solid fa-rotate-right mr-2"></i>Refresh</button><button id="newBtn" type="button" class="rounded-full bg-blue-600 px-4 py-3 text-xs font-extrabold text-white"><i class="fa-solid fa-plus mr-2"></i>Rekod baharu</button></div><div class="sprad-table-shell"><table class="sprad-crud-table w-full divide-y divide-slate-100"><thead><tr><th>Rujukan</th><th>Butiran</th><th>Status</th><th>Petunjuk</th><th>Tindakan</th></tr></thead><tbody id="recordList" class="divide-y divide-slate-100"></tbody></table></div><div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><p id="paginationSummary" class="text-xs font-bold text-slate-500">0 rekod</p><div class="flex gap-2"><button id="prevPage" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-600">Sebelum</button><button id="nextPage" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-600">Seterusnya</button></div></div></div>
           <div id="editorCard" class="self-start rounded-2xl border border-slate-200 bg-white p-5 shadow-sm xl:sticky xl:top-20"><p id="editorMode" class="text-xs font-extrabold uppercase tracking-widest text-blue-600"></p><h2 id="editorTitle" class="mt-2 text-xl font-extrabold text-slate-900"></h2><p id="editorHelp" class="mt-2 text-xs font-semibold leading-5 text-slate-500"></p><form id="editorForm" class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-1"></form></div>
