@@ -1,7 +1,7 @@
 /*
  * File Path: brand.css
- * File Version: SPRAD v2.8-production | sidebar-panel.1
- * Update Info: 2026-06-20 - Asingkan side menu daripada card kandungan.
+ * File Version: SPRAD v2.8-production | login-redesign.1
+ * Update Info: 2026-06-20 - Reka semula skrin log masuk kepada layout analisis bento yang lebih kemas.
  */
 :root {
   color-scheme: light;
@@ -128,6 +128,327 @@ header img {
 main {
   width: 100%;
   background-color: #f8fafc;
+}
+
+.sprad-login-body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(37, 99, 235, .12), transparent 28rem),
+    radial-gradient(circle at 92% 16%, rgba(14, 165, 233, .10), transparent 24rem),
+    linear-gradient(135deg, #f8fafc 0%, #eef4fb 52%, #f7fafc 100%);
+}
+
+.sprad-login-header {
+  background: rgba(255, 255, 255, .92) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.sprad-login-main {
+  display: grid !important;
+  width: 100%;
+  max-width: 1180px !important;
+  min-height: calc(100dvh - 4rem);
+  grid-template-columns: minmax(0, 1.08fr) minmax(22rem, .72fr) !important;
+  align-items: start !important;
+  gap: 1rem !important;
+  padding: 1rem !important;
+  margin: 0 auto !important;
+  background: transparent !important;
+}
+
+.sprad-login-overview,
+.sprad-login-panel,
+.sprad-login-tile {
+  background: rgba(255, 255, 255, .92) !important;
+  border: 1px solid rgba(226, 232, 240, .92) !important;
+  box-shadow: 0 22px 45px -34px rgba(15, 23, 42, .42) !important;
+}
+
+.sprad-login-overview {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+  border-radius: 1.25rem;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.sprad-login-identity {
+  position: relative;
+  display: grid;
+  min-height: 17rem;
+  align-content: space-between;
+  gap: 1.25rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  color: #0f172a;
+  background:
+    linear-gradient(135deg, rgba(239, 246, 255, .98), rgba(255, 255, 255, .95) 54%, rgba(236, 253, 245, .86)),
+    #ffffff;
+}
+
+.sprad-login-identity::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(37, 99, 235, .08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, .08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(135deg, rgba(0, 0, 0, .72), transparent 72%);
+}
+
+.sprad-login-identity > * {
+  position: relative;
+}
+
+.sprad-login-seal {
+  width: 4.6rem;
+  height: 4.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 16px 32px -24px rgba(15, 23, 42, .55);
+}
+
+.sprad-login-seal img {
+  width: 3.75rem;
+  height: 3.75rem;
+  object-fit: contain;
+}
+
+.sprad-login-title {
+  max-width: 12ch;
+  color: #0f172a;
+  font-size: clamp(2.15rem, 4.8vw, 4.85rem);
+  font-weight: 900;
+  line-height: .92;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.sprad-login-subtitle {
+  max-width: 34rem;
+  color: #475569;
+  font-size: .95rem;
+  font-weight: 650;
+  line-height: 1.7;
+}
+
+.sprad-login-bento {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.sprad-login-tile {
+  min-width: 0;
+  min-height: 9.4rem;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.sprad-login-tile-wide {
+  grid-column: span 2;
+}
+
+.sprad-login-tile-tall {
+  grid-row: span 2;
+}
+
+.sprad-login-kicker {
+  color: #64748b;
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.sprad-login-value {
+  margin-top: .45rem;
+  color: #0f172a;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.sprad-login-note {
+  margin-top: .55rem;
+  color: #64748b;
+  font-size: .82rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.sprad-login-flow {
+  display: grid;
+  gap: .65rem;
+  margin-top: .8rem;
+}
+
+.sprad-login-flow span {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  color: #334155;
+  font-size: .82rem;
+  font-weight: 750;
+}
+
+.sprad-login-flow i {
+  color: #2563eb;
+}
+
+.sprad-login-panel {
+  align-self: start;
+  border-radius: 1.25rem;
+  padding: clamp(1.25rem, 2.4vw, 1.75rem);
+}
+
+.sprad-login-panel-card {
+  display: grid;
+  min-height: 0;
+  align-content: start;
+  gap: 1.25rem;
+}
+
+.sprad-login-form-title {
+  color: #0f172a;
+  font-size: clamp(1.7rem, 2.6vw, 2.25rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.02;
+}
+
+.sprad-login-input-wrap {
+  position: relative;
+}
+
+.sprad-login-input-wrap i {
+  position: absolute;
+  left: .95rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.sprad-login-input-wrap input {
+  padding-left: 2.65rem !important;
+}
+
+.sprad-login-help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.sprad-login-help {
+  min-width: 0;
+  border-radius: .85rem;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: .85rem;
+}
+
+.sprad-login-help strong {
+  display: block;
+  color: #0f172a;
+  font-size: .8rem;
+  font-weight: 850;
+}
+
+.sprad-login-help span {
+  display: block;
+  margin-top: .25rem;
+  color: #64748b;
+  font-size: .75rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.sprad-login-submit {
+  background: linear-gradient(135deg, #1e40af, #2563eb) !important;
+  box-shadow: 0 18px 30px -20px rgba(37, 99, 235, .75) !important;
+}
+
+.sprad-login-submit:hover {
+  background: linear-gradient(135deg, #1d4ed8, #0f172a) !important;
+}
+
+@media (max-width: 1023px) {
+  .sprad-login-main {
+    min-height: auto;
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 1rem !important;
+  }
+
+  .sprad-login-overview {
+    order: 2;
+  }
+
+  .sprad-login-panel {
+    order: 1;
+  }
+
+  .sprad-login-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sprad-login-help-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sprad-login-tile-tall {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .sprad-login-main {
+    gap: .75rem !important;
+    padding: .75rem !important;
+  }
+
+  .sprad-login-overview,
+  .sprad-login-panel {
+    border-radius: 1rem;
+  }
+
+  .sprad-login-identity {
+    min-height: auto;
+  }
+
+  .sprad-login-title {
+    max-width: 13ch;
+    font-size: 2.25rem;
+  }
+
+  .sprad-login-bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sprad-login-tile,
+  .sprad-login-tile-wide,
+  .sprad-login-tile-tall {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 0;
+  }
+
+  .sprad-login-panel-card {
+    gap: 1.1rem;
+  }
+
+  .sprad-login-help-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (min-width: 1024px) {

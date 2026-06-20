@@ -1,7 +1,7 @@
 /*
  * File Path: tests/localization-contract.test.mjs
- * File Version: SPRAD v2.8-production | malay-localization.1
- * Update Info: 2026-06-20 - Tambah kontrak supaya teks UI SPRAD kekal dalam Bahasa Melayu.
+ * File Version: SPRAD v2.8-production | qa-fix.1
+ * Update Info: 2026-06-20 - Tambah regression test untuk identifier teknikal selepas lokalisasi.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -48,6 +48,8 @@ const userFacingSource = userFacingFiles
   .map(file => `\n/* ${file} */\n${read(file)}`)
   .join("\n");
 const appsScriptSource = read("apps-script/Code.gs");
+const dashboardPageSource = read("assets/js/pages/dashboard-page.js");
+const viewPageSource = read("view.html");
 
 test("SPRAD visible interface copy is localized to Bahasa Melayu", () => {
   [
@@ -108,4 +110,14 @@ test("Apps Script API messages exposed to the browser are localized to Bahasa Me
       `Mesej API belum Bahasa Melayu sepenuhnya: ${englishText}`
     );
   });
+});
+
+test("Malay localization does not rewrite technical dashboard identifiers", () => {
+  assert.match(dashboardPageSource, /getDashboardSummary/, "Halaman dashboard mesti import fungsi teknikal getDashboardSummary.");
+  assert.doesNotMatch(dashboardPageSource, /getPapan PemukaSummary|Papan PemukaSummary/, "Label Papan Pemuka tidak boleh digunakan sebagai identifier JavaScript.");
+});
+
+test("Malay localization does not rewrite technical contact draft identifiers", () => {
+  assert.match(viewPageSource, /validateContactDraft/, "Halaman view mesti import validateContactDraft.");
+  assert.doesNotMatch(viewPageSource, /validateContactDraf(?!t)/, "Label Draf tidak boleh menukar identifier validateContactDraft.");
 });

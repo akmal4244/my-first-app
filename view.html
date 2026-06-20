@@ -1,8 +1,8 @@
 <!doctype html>
 <!--
   File Path: view.html
-  File Version: SPRAD v2.8-production | malay-localization.1
-  Update Info: 2026-06-20 - Seragamkan teks UI kepada Bahasa Melayu.
+  File Version: SPRAD v2.8-production | qa-fix.1
+  Update Info: 2026-06-20 - Pulihkan identifier validateContactDraft selepas QA browser.
 -->
 <html lang="ms">
 <head>
@@ -173,7 +173,7 @@
       applyContactUpdate,
       removeContactById,
       sortContactsByNewest,
-      validateContactDraf
+      validateContactDraft
     } from "./assets/js/core/contact-utils.js";
     import { buildMutationRequest, pollMutationReceipt } from "./assets/js/core/mutation-utils.js";
     import { buildScopedCacheKey } from "./assets/js/core/storage.js";
@@ -423,7 +423,7 @@
     }
 
     function getDrafFromRow(row) {
-      return validateContactDraf({
+      return validateContactDraft({
         id: row.dataset.contactId,
         name: row.querySelector('[data-field="name"]')?.value,
         email: row.querySelector('[data-field="email"]')?.value,

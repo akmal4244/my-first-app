@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/pages/dashboard-page.js
- * File Version: SPRAD v2.8-production | sidebar-panel.1
- * Update Info: 2026-06-20 - Asingkan side menu daripada card kandungan.
+ * File Version: SPRAD v2.8-production | qa-fix.1
+ * Update Info: 2026-06-20 - Pulihkan identifier teknikal dashboard selepas lokalisasi Bahasa Melayu.
  */
 import { STORAGE_KEYS } from "../config.js";
 import {
@@ -11,7 +11,7 @@ import {
   setupSidebar,
   showToast
 } from "../components/app-shell.js";
-import { getPapan PemukaSummary } from "../services/audit-service.js";
+import { getDashboardSummary } from "../services/audit-service.js";
 
 normalizeCleanUrl("dashboard");
 ensureShell();
@@ -31,7 +31,7 @@ async function loadSummary({ force = false } = {}) {
   else renderLoading();
 
   try {
-    const summary = await getPapan PemukaSummary(session.token);
+    const summary = await getDashboardSummary(session.token);
     writeCache(summary);
     render(summary, "Dikemaskini");
   } catch (err) {

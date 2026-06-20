@@ -1,8 +1,8 @@
 <!doctype html>
 <!--
   File Path: login.html
-  File Version: SPRAD v2.8-production | malay-localization.1
-  Update Info: 2026-06-20 - Seragamkan teks UI kepada Bahasa Melayu.
+  File Version: SPRAD v2.8-production | login-redesign.1
+  Update Info: 2026-06-20 - Reka semula skrin log masuk kepada layout analisis bento yang lebih kemas.
 -->
 <html lang="ms">
 <head>
@@ -26,7 +26,7 @@
     body { font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; }
   </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+<body class="sprad-login-body min-h-screen text-slate-800 antialiased">
   <div id="toast" class="fixed right-4 top-20 z-[100] hidden w-[calc(100%-2rem)] max-w-sm rounded-xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/80">
     <div class="flex gap-3">
       <div id="toastIcon" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -39,7 +39,7 @@
     </div>
   </div>
 
-  <header class="bg-white border-b border-gray-100 shadow-sm z-50 h-16 sticky top-0">
+  <header class="sprad-login-header border-b border-slate-200/80 z-50 h-16 sticky top-0">
     <div class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
       <a href="./" class="flex items-center gap-3">
         <img src="https://www.akm.gov.my/templates/yootheme/cache/91/JATA%20NEGARA%20AI-01-91eac591.webp" alt="Jata Negara" width="40" height="40" decoding="async" class="h-10 w-10 object-contain drop-shadow-sm">
@@ -48,73 +48,122 @@
           <p class="text-[9px] font-semibold uppercase tracking-widest text-slate-500">Sistem Penilaian Risiko Audit Dalam</p>
         </div>
       </a>
-      <nav class="hidden items-center gap-6 text-xs font-bold uppercase tracking-wide text-slate-600 sm:flex">
-        <a href="register" class="hover:text-blue-600">Daftar</a>
-        <a href="form" class="hover:text-blue-600">Borang</a>
+      <nav class="hidden items-center gap-3 text-xs font-bold text-slate-600 sm:flex">
+        <a href="register" class="rounded-lg px-3 py-2 hover:bg-blue-50 hover:text-blue-700">Daftar akaun</a>
+        <a href="form" class="rounded-lg px-3 py-2 hover:bg-slate-100 hover:text-slate-900">Borang awam</a>
       </nav>
     </div>
   </header>
 
-  <main class="mx-auto grid w-full max-w-7xl items-start gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:px-8">
-    <section class="order-2 grid gap-4 lg:order-1">
-      <div class="brand-cover rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <p class="text-xs font-extrabold uppercase tracking-widest text-blue-600">Portal rasmi</p>
-        <h1 class="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Sistem Penilaian Risiko Audit Dalam</h1>
-        <p class="mt-3 max-w-xl text-sm font-medium leading-6 text-slate-500">Akses pentadbir dan pengguna untuk rekod, semak, dan pantau penilaian risiko audit secara tersusun.</p>
+  <main class="sprad-login-main">
+    <section class="sprad-login-overview" aria-label="Gambaran sistem">
+      <div class="sprad-login-identity">
+        <div class="flex items-start justify-between gap-4">
+          <div class="sprad-login-seal">
+            <img src="https://www.akm.gov.my/templates/yootheme/cache/91/JATA%20NEGARA%20AI-01-91eac591.webp" alt="Jata Negara" width="60" height="60" decoding="async">
+          </div>
+          <div class="rounded-xl border border-blue-100 bg-white/85 px-3 py-2 text-right shadow-sm">
+            <p class="text-[11px] font-extrabold text-slate-400">Status sistem</p>
+            <p class="text-sm font-extrabold text-emerald-700">Sedia digunakan</p>
+          </div>
+        </div>
+        <div>
+          <p class="sprad-login-kicker text-blue-700">Portal analisis audit dalam</p>
+          <h1 class="sprad-login-title mt-3">Sistem Penilaian Risiko Audit Dalam</h1>
+          <p class="sprad-login-subtitle mt-4">SPRAD menyatukan penemuan audit, tindakan pembetulan, semakan risiko, dan dashboard pengurusan tertinggi dalam satu ruang kerja yang tersusun.</p>
+        </div>
       </div>
-      <div class="grid gap-4 md:grid-cols-3">
-        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-            <i class="fa-solid fa-shield-halved"></i>
+
+      <div class="sprad-login-bento">
+        <article class="sprad-login-tile sprad-login-tile-wide">
+          <p class="sprad-login-kicker">Paparan pengurusan</p>
+          <p class="sprad-login-value">5</p>
+          <p class="sprad-login-note">modul utama untuk risiko, dapatan, tindakan, laporan, dan tetapan sistem.</p>
+        </article>
+        <article class="sprad-login-tile">
+          <p class="sprad-login-kicker">Akses</p>
+          <p class="sprad-login-value">2</p>
+          <p class="sprad-login-note">peranan: pentadbir dan pengguna.</p>
+        </article>
+        <article class="sprad-login-tile sprad-login-tile-tall">
+          <p class="sprad-login-kicker">Aliran kerja</p>
+          <div class="sprad-login-flow">
+            <span><i class="fa-solid fa-circle-check"></i> Daftar isu audit</span>
+            <span><i class="fa-solid fa-circle-check"></i> Semak tahap risiko</span>
+            <span><i class="fa-solid fa-circle-check"></i> Jejak tindakan</span>
+            <span><i class="fa-solid fa-circle-check"></i> Jana rumusan</span>
           </div>
-          <p class="mt-4 text-xs font-extrabold uppercase tracking-widest text-slate-400">Akses</p>
-          <p class="mt-1 text-lg font-extrabold text-slate-900">Sesi selamat</p>
-        </div>
-        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-            <i class="fa-solid fa-chart-line"></i>
+        </article>
+        <article class="sprad-login-tile sprad-login-tile-wide">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="sprad-login-kicker">Backend</p>
+              <p class="mt-2 text-lg font-extrabold text-slate-900">Google Sheets + Apps Script</p>
+              <p class="sprad-login-note">Sesuai untuk operasi audit ringan dengan autopilot data.</p>
+            </div>
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+              <i class="fa-solid fa-database"></i>
+            </div>
           </div>
-          <p class="mt-4 text-xs font-extrabold uppercase tracking-widest text-slate-400">Analisis</p>
-          <p class="mt-1 text-lg font-extrabold text-slate-900">Data audit</p>
-        </div>
-        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-            <i class="fa-solid fa-user-check"></i>
-          </div>
-          <p class="mt-4 text-xs font-extrabold uppercase tracking-widest text-slate-400">Peranan</p>
-          <p class="mt-1 text-lg font-extrabold text-slate-900">Pentadbir</p>
-        </div>
+        </article>
       </div>
     </section>
 
-    <section class="order-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:order-2">
-      <div class="mb-5">
-        <p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Log masuk</p>
-        <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">Masuk ke SPRAD</h2>
-      </div>
+    <section class="sprad-login-panel" aria-labelledby="loginTitle">
+      <div class="sprad-login-panel-card">
+        <div>
+          <p class="sprad-login-kicker text-blue-700">Akses sistem</p>
+          <h2 id="loginTitle" class="sprad-login-form-title mt-3">Log masuk ke SPRAD</h2>
+          <p class="mt-3 text-sm font-semibold leading-6 text-slate-500">Gunakan akaun yang telah didaftarkan oleh pentadbir sistem.</p>
+        </div>
+
       <form id="loginForm" class="space-y-4">
         <label class="block">
-          <span class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Nama pengguna</span>
-          <input id="username" name="username" autocomplete="username" required class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100">
+          <span class="text-xs font-extrabold text-slate-500">Nama pengguna</span>
+          <span class="sprad-login-input-wrap mt-2 block">
+            <i class="fa-solid fa-user"></i>
+            <input id="username" name="username" autocomplete="username" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100">
+          </span>
         </label>
         <label class="block">
-          <span class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Kata laluan</span>
-          <input id="password" name="password" type="password" autocomplete="current-password" required class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100">
+          <span class="text-xs font-extrabold text-slate-500">Kata laluan</span>
+          <span class="sprad-login-input-wrap mt-2 block">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password" name="password" type="password" autocomplete="current-password" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100">
+          </span>
         </label>
-        <label class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <span class="flex items-center gap-3 text-sm font-extrabold text-slate-700">
+        <label class="flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3">
+          <span class="flex items-center gap-3 text-sm font-extrabold text-slate-800">
             <input id="remember" name="remember" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
             Ingat saya
           </span>
-          <span class="text-[11px] font-bold uppercase tracking-wide text-slate-400">Simpan nama pengguna</span>
+          <span class="text-[11px] font-bold text-blue-700">Simpan pada peranti ini</span>
         </label>
-        <button id="submitBtn" type="submit" class="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-extrabold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-black focus:outline-none focus:ring-4 focus:ring-slate-200 disabled:translate-y-0 disabled:cursor-wait disabled:opacity-80">
+        <button id="submitBtn" type="submit" class="sprad-login-submit flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-extrabold text-white transition hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:translate-y-0 disabled:cursor-wait disabled:opacity-80">
           <i id="submitIcon" class="fa-solid fa-right-to-bracket"></i>
           <span id="submitLabel">Log masuk</span>
         </button>
       </form>
-      <p class="pt-5 text-center text-sm font-bold text-slate-500">Belum ada akaun? <a href="register" class="text-blue-700 hover:text-blue-800">Daftar akaun</a></p>
-      <p id="msg" class="min-h-6 pt-4 text-sm font-bold text-red-600"></p>
+
+        <div class="sprad-login-help-grid">
+          <div class="sprad-login-help">
+            <strong>Akses ikut peranan</strong>
+            <span>Pentadbir ke dashboard, pengguna ke borang audit.</span>
+          </div>
+          <div class="sprad-login-help">
+            <strong>Data Google Sheets</strong>
+            <span>Log masuk pertama mungkin ambil beberapa saat.</span>
+          </div>
+        </div>
+
+        <div>
+          <p id="msg" class="min-h-6 text-sm font-bold text-red-600"></p>
+          <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4 text-sm font-bold text-slate-500">
+            <span>Belum ada akaun?</span>
+            <a href="register" class="rounded-lg bg-slate-100 px-3 py-2 text-blue-700 hover:bg-blue-50 hover:text-blue-800">Daftar akaun</a>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
