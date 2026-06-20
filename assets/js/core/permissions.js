@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/core/permissions.js
- * File Version: SPRAD v2.8-production | metadata-header.1
- * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Seragamkan teks UI kepada Bahasa Melayu.
  */
 export const LEGACY_ROLE_MAP = Object.freeze({
   pentadbir: "institution_admin",
@@ -54,9 +54,9 @@ export const ROLE_PERMISSIONS = Object.freeze({
 });
 
 export const NAV_LINKS = Object.freeze([
-  { route: "dashboard", icon: "fa-chart-line", label: "Dashboard", permissions: ["reports.view"] },
+  { route: "dashboard", icon: "fa-chart-line", label: "Papan Pemuka", permissions: ["reports.view"] },
   { route: "form", icon: "fa-clipboard-list", label: "Penilaian risiko", permissions: ["findings.create", "findings.manage"] },
-  { route: "ai-intake", icon: "fa-wand-magic-sparkles", label: "AI Intake", permissions: ["findings.create", "findings.manage"] },
+  { route: "ai-intake", icon: "fa-wand-magic-sparkles", label: "Input AI", permissions: ["findings.create", "findings.manage"] },
   { route: "audit-cycles", icon: "fa-calendar-days", label: "Kitaran audit", permissions: ["audit.manage"] },
   { route: "audits", icon: "fa-file-signature", label: "Audit", permissions: ["audit.manage"] },
   { route: "findings", icon: "fa-triangle-exclamation", label: "Penemuan", permissions: ["findings.create", "findings.review", "findings.manage"] },

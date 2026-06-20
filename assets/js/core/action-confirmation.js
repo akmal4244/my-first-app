@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/core/action-confirmation.js
- * File Version: SPRAD v2.8-production | metadata-header.1
- * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Seragamkan mesej tindakan kepada Bahasa Melayu.
  */
 const CANCELLED_RESULT = Object.freeze({
   cancelled: true,
@@ -73,7 +73,7 @@ export function confirmationCopyForAction(action, options = {}) {
 }
 
 export async function runConfirmedAction(action, handler, options = {}) {
-  if (typeof handler !== "function") throw new Error("Handler tindakan tidak sah.");
+  if (typeof handler !== "function") throw new Error("Pengendali tindakan tidak sah.");
   if (options.skipConfirmation || !actionRequiresConfirmation(action)) {
     return handler();
   }

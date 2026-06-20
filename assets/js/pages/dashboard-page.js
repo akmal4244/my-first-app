@@ -11,7 +11,7 @@ import {
   setupSidebar,
   showToast
 } from "../components/app-shell.js";
-import { getDashboardSummary } from "../services/audit-service.js";
+import { getPapan PemukaSummary } from "../services/audit-service.js";
 
 normalizeCleanUrl("dashboard");
 ensureShell();
@@ -31,11 +31,11 @@ async function loadSummary({ force = false } = {}) {
   else renderLoading();
 
   try {
-    const summary = await getDashboardSummary(session.token);
+    const summary = await getPapan PemukaSummary(session.token);
     writeCache(summary);
     render(summary, "Dikemaskini");
   } catch (err) {
-    showToast("Ralat dashboard", err.message || "Dashboard tidak dapat dimuatkan.", "error");
+    showToast("Ralat dashboard", err.message || "Papan Pemuka tidak dapat dimuatkan.", "error");
     if (!cached) renderError();
   }
 }
@@ -92,7 +92,7 @@ function renderLoading() {
 
 function renderError() {
   setText("cacheStatus", "Ralat");
-  document.querySelector("#categoryList").innerHTML = `<p class="text-sm font-bold text-red-600">Dashboard tidak dapat dimuatkan.</p>`;
+  document.querySelector("#categoryList").innerHTML = `<p class="text-sm font-bold text-red-600">Papan Pemuka tidak dapat dimuatkan.</p>`;
 }
 
 function readCache() {
@@ -125,7 +125,7 @@ function ensureShell() {
     <main class="sprad-shell mx-auto grid w-full max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:px-8">
       ${sidebar()}
       <section class="sprad-content grid content-start gap-5">
-        <div class="brand-cover rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><p class="text-xs font-extrabold uppercase tracking-widest text-blue-600">Fasa 7</p><h1 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Dashboard Analitik</h1><p class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-500">Ringkasan risiko, status semakan dan tindakan pembetulan untuk bacaan pantas pengurusan.</p></div><button id="refreshBtn" class="rounded-full bg-blue-600 px-4 py-3 text-xs font-extrabold text-white"><i class="fa-solid fa-rotate-right mr-2"></i>Refresh</button></div></div>
+        <div class="brand-cover rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><p class="text-xs font-extrabold uppercase tracking-widest text-blue-600">Fasa 7</p><h1 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Papan Pemuka Analitik</h1><p class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-500">Ringkasan risiko, status semakan dan tindakan pembetulan untuk bacaan pantas pengurusan.</p></div><button id="refreshBtn" class="rounded-full bg-blue-600 px-4 py-3 text-xs font-extrabold text-white"><i class="fa-solid fa-rotate-right mr-2"></i>Muat semula</button></div></div>
         <div class="admin-dashboard-grid"><card data-primary="true"><p>Jumlah Penemuan</p><strong id="totalFindings">0</strong></card><card><p>Tahap Keseluruhan</p><strong id="overallLevel">-</strong></card><card><p>Tinggi/Kritikal</p><strong id="highCritical">0%</strong></card><card><p>Tindakan Lewat</p><strong id="overdueActions">0</strong><small id="cacheStatus">-</small></card></div>
         <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]"><div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 class="text-lg font-extrabold text-slate-900">Taburan Tahap Risiko</h2><div id="levelBars" class="mt-5 grid gap-4"></div></div><div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 class="text-lg font-extrabold text-slate-900">Perlu Perhatian</h2><ul id="urgentList" class="mt-5 grid gap-3"></ul></div></div>
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 class="text-lg font-extrabold text-slate-900">Kategori Risiko Teratas</h2><ul id="categoryList" class="mt-5 grid gap-3 md:grid-cols-2"></ul></div>
@@ -143,9 +143,9 @@ function sidebar() {
 
 function navLinks() {
   return [
-    ["dashboard", "fa-chart-line", "Dashboard"],
+    ["dashboard", "fa-chart-line", "Papan Pemuka"],
     ["form", "fa-clipboard-list", "Penilaian risiko"],
-    ["ai-intake", "fa-wand-magic-sparkles", "AI Intake"],
+    ["ai-intake", "fa-wand-magic-sparkles", "Input AI"],
     ["audit-cycles", "fa-calendar-days", "Kitaran audit"],
     ["audits", "fa-file-signature", "Audit"],
     ["findings", "fa-triangle-exclamation", "Penemuan"],

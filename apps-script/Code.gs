@@ -1,7 +1,7 @@
 /*
  * File Path: apps-script/Code.gs
- * File Version: SPRAD v2.8-production | dummy-seed.1
- * Update Info: 2026-06-20 - Tetapkan 5 data dummy setiap fungsi/table dan tambah helper reset dummy.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Seragamkan mesej API Apps Script kepada Bahasa Melayu.
  */
 // =========== APP CONFIG ===========
 const APP_NAME = "Sistem Penilaian Risiko Audit Dalam (SPRAD)";
@@ -160,7 +160,7 @@ function doPost(e) {
     return saveContact(body);
   } catch (err) {
     console.error(err);
-    return json({ ok: false, error: "server error" });
+    return json({ ok: false, error: "Ralat pelayan." });
   }
 }
 
@@ -179,7 +179,7 @@ function doGet(e) {
 
     // PROTECTED: token required
     const user = validateToken(p.token);
-    if (!user) return json({ ok: false, error: "invalid token" });
+    if (!user) return json({ ok: false, error: "Token tidak sah." });
 
     if (p.action === "getContacts") return getContacts(user);
     if (p.action === "riskMatrix.get") return getRiskMatrix(user);
@@ -187,10 +187,10 @@ function doGet(e) {
     const v2Response = routeV2Get_(p, user);
     if (v2Response) return v2Response;
 
-    return json({ ok: false, error: "unknown action" });
+    return json({ ok: false, error: "Tindakan tidak diketahui." });
   } catch (err) {
     console.error(err);
-    return json({ ok: false, error: "server error" });
+    return json({ ok: false, error: "Ralat pelayan." });
   }
 }
 
@@ -242,7 +242,7 @@ function saveContact({ name, email, message }) {
   };
 
   if (!contact.name || !contact.email || !contact.message) {
-    return json({ ok: false, error: "missing fields" });
+    return json({ ok: false, error: "Medan wajib tidak lengkap." });
   }
 
   appendLegacyContact_(contact);
@@ -280,9 +280,9 @@ function saveLegacyFindingsMutation_(body, commonPayload, items) {
       entityId: "",
       status: "error",
       errorCode: "INVALID_TOKEN",
-      errorMessage: "invalid token"
+      errorMessage: "Token tidak sah."
     });
-    return json({ ok: false, error: "invalid token" });
+    return json({ ok: false, error: "Token tidak sah." });
   }
 
   const lock = LockService.getScriptLock();
@@ -445,7 +445,7 @@ function register({ username, password, role }) {
   }
 
   if (!user.username || !user.password) {
-    return json({ ok: false, error: "missing fields" });
+    return json({ ok: false, error: "Medan wajib tidak lengkap." });
   }
 
   if (user.password.length < 8) {
@@ -463,7 +463,7 @@ function register({ username, password, role }) {
       .some(row => clean_(row[1]).toLowerCase() === user.username.toLowerCase());
 
     if (duplicate) {
-      return json({ ok: false, error: "username exists" });
+      return json({ ok: false, error: "Nama pengguna sudah wujud." });
     }
 
     const id = Utilities.getUuid();
@@ -491,7 +491,7 @@ function login({ username, password }) {
   password = String(password || "");
 
   if (!username || !password) {
-    return json({ ok: false, error: "missing credentials" });
+    return json({ ok: false, error: "Nama pengguna dan kata laluan wajib diisi." });
   }
 
   if (isLoginRateLimited_(username)) {
@@ -600,7 +600,7 @@ function validateToken(token) {
 
 function getContacts(user) {
   if (user.role !== ROLE_ADMIN) {
-    return json({ ok: false, error: "forbidden" });
+    return json({ ok: false, error: "Akses tidak dibenarkan." });
   }
 
   fixMisalignedContactRows_();
@@ -630,8 +630,8 @@ function updateContact(body) {
   if (existingReceipt) return json({ ok: existingReceipt.status === "success", receipt: existingReceipt });
 
   const user = validateToken(body.token);
-  if (!user) return contactMutationError_(mutation, "", "", "INVALID_TOKEN", "invalid token");
-  if (user.role !== ROLE_ADMIN) return contactMutationError_(mutation, user.id, "", "FORBIDDEN", "forbidden");
+  if (!user) return contactMutationError_(mutation, "", "", "INVALID_TOKEN", "Token tidak sah.");
+  if (user.role !== ROLE_ADMIN) return contactMutationError_(mutation, user.id, "", "FORBIDDEN", "Akses tidak dibenarkan.");
   const payload = mutation.payload;
 
   const contact = {
@@ -641,9 +641,9 @@ function updateContact(body) {
     message: clean_(payload.message)
   };
 
-  if (!contact.id) return contactMutationError_(mutation, user.id, "", "MISSING_ID", "missing id");
+  if (!contact.id) return contactMutationError_(mutation, user.id, "", "MISSING_ID", "ID rekod tidak ditemui.");
   if (!contact.name || !contact.email || !contact.message) {
-    return contactMutationError_(mutation, user.id, contact.id, "MISSING_FIELDS", "missing fields");
+    return contactMutationError_(mutation, user.id, contact.id, "MISSING_FIELDS", "Medan wajib tidak lengkap.");
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) {
     return contactMutationError_(mutation, user.id, contact.id, "INVALID_EMAIL", "invalid email");
@@ -658,7 +658,7 @@ function updateContact(body) {
 
     fixMisalignedContactRows_();
     const found = findContactRowById_(contact.id);
-    if (!found) return contactMutationError_(mutation, user.id, contact.id, "CONTACT_NOT_FOUND", "contact not found");
+    if (!found) return contactMutationError_(mutation, user.id, contact.id, "CONTACT_NOT_FOUND", "Rekod hubungan tidak ditemui.");
 
     const beforeJson = JSON.stringify(contactRowToObject_(found.values));
     found.sheet
@@ -710,12 +710,12 @@ function deleteContact(body) {
   if (existingReceipt) return json({ ok: existingReceipt.status === "success", receipt: existingReceipt });
 
   const user = validateToken(body.token);
-  if (!user) return contactMutationError_(mutation, "", "", "INVALID_TOKEN", "invalid token");
-  if (user.role !== ROLE_ADMIN) return contactMutationError_(mutation, user.id, "", "FORBIDDEN", "forbidden");
+  if (!user) return contactMutationError_(mutation, "", "", "INVALID_TOKEN", "Token tidak sah.");
+  if (user.role !== ROLE_ADMIN) return contactMutationError_(mutation, user.id, "", "FORBIDDEN", "Akses tidak dibenarkan.");
 
   const payload = mutation.payload;
   const id = clean_(payload.id);
-  if (!id) return contactMutationError_(mutation, user.id, "", "MISSING_ID", "missing id");
+  if (!id) return contactMutationError_(mutation, user.id, "", "MISSING_ID", "ID rekod tidak ditemui.");
 
   const lock = LockService.getScriptLock();
   lock.waitLock(5000);
@@ -726,7 +726,7 @@ function deleteContact(body) {
 
     fixMisalignedContactRows_();
     const found = findContactRowById_(id);
-    if (!found) return contactMutationError_(mutation, user.id, id, "CONTACT_NOT_FOUND", "contact not found");
+    if (!found) return contactMutationError_(mutation, user.id, id, "CONTACT_NOT_FOUND", "Rekod hubungan tidak ditemui.");
 
     const beforeJson = JSON.stringify(contactRowToObject_(found.values));
     found.sheet.deleteRow(found.rowNumber);
@@ -772,11 +772,11 @@ function getRiskMatrix(user) {
 
 function getMutationStatus(requestId, user) {
   requestId = clean_(requestId);
-  if (!requestId) return json({ ok: false, error: "missing requestId" });
+  if (!requestId) return json({ ok: false, error: "ID permintaan tidak ditemui." });
 
   const receipt = findMutationReceipt_(requestId, user.id);
   if (!receipt || receipt.user_id !== user.id) {
-    return json({ ok: false, error: "receipt not found" });
+    return json({ ok: false, error: "Resit simpanan belum ditemui." });
   }
 
   return json({ ok: true, receipt });
@@ -863,7 +863,7 @@ function handleV2Mutation_(body) {
 
   const user = validateToken(body.token);
   if (!user) {
-    return json({ ok: false, error: "invalid token", request_id: requestId });
+    return json({ ok: false, error: "Token tidak sah.", request_id: requestId });
   }
   if (isMutationRateLimited_(user, action)) {
     return json({ ok: false, error: "Terlalu banyak permintaan. Sila cuba semula sebentar lagi.", request_id: requestId });
@@ -922,7 +922,7 @@ function performV2Mutation_(action, payload, user, requestId) {
   if (action.indexOf("aiDrafts.") === 0) return mutateAiDraft_(action, payload, user, requestId);
   if (action === "settings.update") return mutateSetting_(payload, user, requestId);
   if (action === "backup.now") return mutateBackupNow_(payload, user, requestId);
-  throw appError_("UNKNOWN_ACTION", "unknown action");
+  throw appError_("UNKNOWN_ACTION", "Tindakan tidak diketahui.");
 }
 
 function mutationEntityType_(action) {
@@ -954,7 +954,7 @@ function listInstitutions_(user, p) {
 function getInstitution_(user, institutionId) {
   const record = getRecordById_(SHEET_INSTITUTIONS, institutionId || user.institution_id);
   if (!record || isArchivedRecord_(record)) return apiError_("NOT_FOUND", "Institusi tidak ditemui.");
-  if (!canAccessInstitution_(user, record.id)) return apiError_("FORBIDDEN", "forbidden");
+  if (!canAccessInstitution_(user, record.id)) return apiError_("FORBIDDEN", "Akses tidak dibenarkan.");
   return apiOk_({ institution: record });
 }
 
@@ -969,7 +969,7 @@ function listTenantRecords_(sheetName, user, p) {
 
 function listUsers_(user, p) {
   if (!roleCan_(user, [ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN])) {
-    return apiError_("FORBIDDEN", "forbidden");
+    return apiError_("FORBIDDEN", "Akses tidak dibenarkan.");
   }
   const includeArchived = includeArchived_(p);
   const records = getSheetObjects_(SHEET_USERS)
@@ -991,7 +991,7 @@ function listFindings_(user, p) {
 function getFinding_(user, id) {
   const finding = getRecordById_(SHEET_FINDINGS, id);
   if (!finding || finding.deleted_at) return apiError_("NOT_FOUND", "Penemuan tidak ditemui.");
-  if (!tenantFilter_(finding, user)) return apiError_("FORBIDDEN", "forbidden");
+  if (!tenantFilter_(finding, user)) return apiError_("FORBIDDEN", "Akses tidak dibenarkan.");
   const units = getSheetObjects_(SHEET_FINDING_UNITS)
     .filter(record => record.finding_id === finding.id && tenantFilter_(record, user));
   const actions = getSheetObjects_(SHEET_CORRECTIVE_ACTIONS)
@@ -1249,7 +1249,7 @@ function mutateRiskCategory_(action, payload, user, requestId) {
 
 function mutateRiskLevel_(action, payload, user, requestId) {
   requireRole_(user, [ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN]);
-  if (action !== "riskLevels.update") throw appError_("UNKNOWN_ACTION", "unknown action");
+  if (action !== "riskLevels.update") throw appError_("UNKNOWN_ACTION", "Tindakan tidak diketahui.");
   const id = required_(payload.id, "ID tahap risiko");
   const before = requireRecordForMutation_(SHEET_RISK_LEVELS, id, user);
   const minScore = Number(payload.min_score || before.min_score);
@@ -1677,7 +1677,7 @@ function mutateCorrectiveAction_(action, payload, user, requestId) {
 }
 
 function mutateAiIntake_(action, payload, user, requestId) {
-  if (action !== "aiIntake.create") throw appError_("UNKNOWN_ACTION", "unknown action");
+  if (action !== "aiIntake.create") throw appError_("UNKNOWN_ACTION", "Tindakan tidak diketahui.");
   requireRole_(user, [ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN, ROLE_AUDITOR, ROLE_REVIEWER]);
 
   const institutionId = scopedInstitutionId_(payload, user);
@@ -1735,7 +1735,7 @@ function mutateAiIntake_(action, payload, user, requestId) {
     if (!drafts.length) throw appError_("AI_EMPTY_RESULT", "Gemini tidak menemui isu audit yang boleh distrukturkan.");
     drafts.forEach(record => appendRecord_(SHEET_AI_DRAFTS, record));
     const averageScore = Math.round(drafts.reduce((sum, draft) => sum + Number(draft.review_score || 0), 0) / drafts.length);
-    const summary = `${drafts.length} draft dijana. ${drafts.filter(draft => draft.auto_review_status !== "lengkap").length} perlu semakan auditor.`;
+    const summary = `${drafts.length} draf dijana. ${drafts.filter(draft => draft.auto_review_status !== "lengkap").length} perlu semakan juruaudit.`;
     const after = updateRecord_(SHEET_AI_JOBS, jobId, {
       status: "completed",
       draft_count: drafts.length,
@@ -1761,11 +1761,11 @@ function mutateAiIntake_(action, payload, user, requestId) {
 }
 
 function mutateAiDraft_(action, payload, user, requestId) {
-  if (action !== "aiDrafts.promote") throw appError_("UNKNOWN_ACTION", "unknown action");
+  if (action !== "aiDrafts.promote") throw appError_("UNKNOWN_ACTION", "Tindakan tidak diketahui.");
   requireRole_(user, [ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN, ROLE_AUDITOR, ROLE_REVIEWER]);
   const draftId = required_(payload.id, "ID draft AI");
   const draft = requireRecordForMutation_(SHEET_AI_DRAFTS, draftId, user);
-  if (!aiRecordVisible_(draft, user)) throw appError_("FORBIDDEN", "forbidden");
+  if (!aiRecordVisible_(draft, user)) throw appError_("FORBIDDEN", "Akses tidak dibenarkan.");
   if (draft.status === "promoted" && draft.promoted_finding_id) {
     return mutationResult_("ai_draft", draftId, draft, draft.institution_id);
   }
@@ -1856,7 +1856,7 @@ function mutateUser_(action, payload, user, requestId) {
   const id = required_(payload.id, "ID pengguna");
   const before = findUserMutableRecord_(id);
   if (!before) throw appError_("NOT_FOUND", "Pengguna tidak ditemui.");
-  if (!tenantFilter_(before, user)) throw appError_("FORBIDDEN", "forbidden");
+  if (!tenantFilter_(before, user)) throw appError_("FORBIDDEN", "Akses tidak dibenarkan.");
   if (before.role === ROLE_SUPER_ADMIN && !isSuperAdmin_(user)) {
     throw appError_("FORBIDDEN", "Hanya super admin boleh mengubah akaun super admin.");
   }
@@ -2241,7 +2241,7 @@ function restoreStatusForSheet_(sheetName, record) {
 function requireRecordForMutation_(sheetName, id, user) {
   const record = getRecordById_(sheetName, id);
   if (!record) throw appError_("NOT_FOUND", "Rekod tidak ditemui.");
-  if (!tenantFilter_(record, user)) throw appError_("FORBIDDEN", "forbidden");
+  if (!tenantFilter_(record, user)) throw appError_("FORBIDDEN", "Akses tidak dibenarkan.");
   return record;
 }
 
@@ -2534,7 +2534,7 @@ function roleCan_(user, allowedRoles) {
 }
 
 function requireRole_(user, allowedRoles) {
-  if (!roleCan_(user, allowedRoles)) throw appError_("FORBIDDEN", "forbidden");
+  if (!roleCan_(user, allowedRoles)) throw appError_("FORBIDDEN", "Akses tidak dibenarkan.");
 }
 
 function isSuperAdmin_(user) {
@@ -2625,8 +2625,8 @@ function normalizeSheetStatus_(sheetName, status, fallback) {
 function assertCanEditFinding_(user, finding) {
   const role = effectiveV2Role_(user);
   if ([ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN, ROLE_REVIEWER].indexOf(role) !== -1) return;
-  if (role !== ROLE_AUDITOR) throw appError_("FORBIDDEN", "forbidden");
-  if (String(finding.created_by || "") !== String(user.id || "")) throw appError_("FORBIDDEN", "forbidden");
+  if (role !== ROLE_AUDITOR) throw appError_("FORBIDDEN", "Akses tidak dibenarkan.");
+  if (String(finding.created_by || "") !== String(user.id || "")) throw appError_("FORBIDDEN", "Akses tidak dibenarkan.");
   if (["draft", "returned"].indexOf(String(finding.workflow_status || "draft")) === -1) {
     throw appError_("WORKFLOW_LOCKED", "Penemuan tidak boleh diedit dalam status semasa.");
   }
@@ -2663,9 +2663,9 @@ function validateUnitIds_(unitIds, institutionId) {
 function assertCanEditCorrectiveAction_(user, actionRecord) {
   const role = effectiveV2Role_(user);
   if ([ROLE_SUPER_ADMIN, ROLE_INSTITUTION_ADMIN, ROLE_REVIEWER].indexOf(role) !== -1) return;
-  if (role !== ROLE_AUDITOR) throw appError_("FORBIDDEN", "forbidden");
+  if (role !== ROLE_AUDITOR) throw appError_("FORBIDDEN", "Akses tidak dibenarkan.");
   const ownAction = String(actionRecord.created_by || actionRecord.owner_user_id || "") === String(user.id || "");
-  if (!ownAction) throw appError_("FORBIDDEN", "forbidden");
+  if (!ownAction) throw appError_("FORBIDDEN", "Akses tidak dibenarkan.");
   if (["open", "in_progress", "returned"].indexOf(String(actionRecord.status || "open")) === -1) {
     throw appError_("WORKFLOW_LOCKED", "Tindakan tidak boleh diedit dalam status semasa.");
   }
@@ -2821,7 +2821,7 @@ function normalizeGeminiDrafts_(extraction, context) {
       institution_id: context.institutionId,
       job_id: context.jobId,
       category_id: categoryId,
-      title: base.title || `Draft isu audit ${index + 1}`,
+      title: base.title || `Draf isu audit ${index + 1}`,
       issue_description: base.issue_description,
       root_cause: base.root_cause,
       impact_description: base.impact_description,
@@ -3251,7 +3251,7 @@ function seedDummyV2Data_() {
   appendRowsIfMissing_(SHEET_AI_JOBS, 0, Array.from({ length: DUMMY_RECORDS_PER_TABLE }, (_, index) => {
     const number = String(index + 1).padStart(2, "0");
     const status = index < DUMMY_RECORDS_PER_TABLE - 1 ? "completed" : "failed";
-    return [`ai_job_demo_${number}`, DEFAULT_INSTITUTION_ID, `drive_ai_demo_${number}`, `laporan-audit-demo-${number}.pdf`, "application/pdf", 204800 + index, `Laporan Audit Demo ${number}`, status, "gemini-2.5-flash", status === "completed" ? 1 : 0, status === "completed" ? 82 - index : 0, status === "completed" ? "Draft demo dijana untuk semakan auditor." : "Demo ralat konfigurasi Gemini.", status === "failed" ? "GEMINI_API_KEY belum ditetapkan." : "", nowIso, "system", nowIso, "system", "", ""];
+    return [`ai_job_demo_${number}`, DEFAULT_INSTITUTION_ID, `drive_ai_demo_${number}`, `laporan-audit-demo-${number}.pdf`, "application/pdf", 204800 + index, `Laporan Audit Demo ${number}`, status, "gemini-2.5-flash", status === "completed" ? 1 : 0, status === "completed" ? 82 - index : 0, status === "completed" ? "Draf demo dijana untuk semakan juruaudit." : "Demo ralat konfigurasi Gemini.", status === "failed" ? "GEMINI_API_KEY belum ditetapkan." : "", nowIso, "system", nowIso, "system", "", ""];
   }), HEADERS.ai_jobs);
 
   appendRowsIfMissing_(SHEET_AI_DRAFTS, 0, Array.from({ length: DUMMY_RECORDS_PER_TABLE }, (_, index) => {
@@ -3261,7 +3261,7 @@ function seedDummyV2Data_() {
     const risk = calculateRisk_(likelihood, impact, DEFAULT_INSTITUTION_ID);
     const confidence = Number((0.9 - index * 0.03).toFixed(2));
     const flags = index % 3 === 0 ? ["high_risk"] : [];
-    return [`ai_draft_demo_${number}`, DEFAULT_INSTITUTION_ID, `ai_job_demo_${number}`, V2_RISK_CATEGORIES[index % V2_RISK_CATEGORIES.length][0], `Draft AI isu audit ${number}`, `Huraian draft AI demo ${number} berdasarkan laporan audit institusi.`, "Kawalan proses tidak dilaksanakan secara konsisten.", "Risiko ketidakpatuhan dan kelewatan tindakan pembetulan.", `https://drive.google.com/demo/ai-evidence-${number}`, "Laksanakan semakan berkala dan bukti tindakan yang jelas.", likelihood, impact, risk.score, risk.levelId, confidence, flags.length ? "perlu_semakan" : "lengkap", Math.round(confidence * 100), JSON.stringify(flags), `${index + 1}`, index < 2 ? "promoted" : "draft", index < 2 ? `finding_demo_${number}` : "", nowIso, "system", nowIso, "system", "", ""];
+    return [`ai_draft_demo_${number}`, DEFAULT_INSTITUTION_ID, `ai_job_demo_${number}`, V2_RISK_CATEGORIES[index % V2_RISK_CATEGORIES.length][0], `Draf AI isu audit ${number}`, `Huraian draf AI demo ${number} berdasarkan laporan audit institusi.`, "Kawalan proses tidak dilaksanakan secara konsisten.", "Risiko ketidakpatuhan dan kelewatan tindakan pembetulan.", `https://drive.google.com/demo/ai-evidence-${number}`, "Laksanakan semakan berkala dan bukti tindakan yang jelas.", likelihood, impact, risk.score, risk.levelId, confidence, flags.length ? "perlu_semakan" : "lengkap", Math.round(confidence * 100), JSON.stringify(flags), `${index + 1}`, index < 2 ? "promoted" : "draft", index < 2 ? `finding_demo_${number}` : "", nowIso, "system", nowIso, "system", "", ""];
   }), HEADERS.ai_drafts);
 
   appendRowsIfMissing_(SHEET_MUTATION_RECEIPTS, 0, Array.from({ length: DUMMY_RECORDS_PER_TABLE }, (_, index) => {
@@ -3865,7 +3865,7 @@ function cleanupExpiredSessions_() {
 
 function parseBody_(e) {
   if (!e || !e.postData || !e.postData.contents) {
-    throw new Error("Missing POST body");
+    throw new Error("Badan POST tidak ditemui.");
   }
   return JSON.parse(e.postData.contents);
 }

@@ -113,7 +113,7 @@ function ensureShell() {
         <div class="brand-cover rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div><p class="text-xs font-extrabold uppercase tracking-widest text-blue-600">Kesediaan produksi</p><h1 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Status Sistem</h1><p class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-500">Semakan deployment, konfigurasi Apps Script dan schema Google Sheets.</p></div>
-            <div class="flex items-center gap-3"><span id="statusBadge" class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-slate-600">Memuat...</span><button id="refreshBtn" class="rounded-full bg-blue-600 px-4 py-3 text-xs font-extrabold text-white"><i class="fa-solid fa-rotate-right mr-2"></i>Refresh</button></div>
+            <div class="flex items-center gap-3"><span id="statusBadge" class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-slate-600">Memuat...</span><button id="refreshBtn" class="rounded-full bg-blue-600 px-4 py-3 text-xs font-extrabold text-white"><i class="fa-solid fa-rotate-right mr-2"></i>Muat semula</button></div>
           </div>
         </div>
         <div class="admin-dashboard-grid">

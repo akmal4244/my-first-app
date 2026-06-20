@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/pages/ai-intake-page.js
- * File Version: SPRAD v2.8-production | sidebar-panel.1
- * Update Info: 2026-06-20 - Asingkan side menu daripada card kandungan.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Seragamkan teks UI kepada Bahasa Melayu.
  */
 import { STORAGE_KEYS } from "../config.js";
 import {
@@ -110,7 +110,7 @@ async function submitUpload(event) {
       showToast("Dibatalkan", "Analisis AI tidak diteruskan.", "info");
       return;
     }
-    showToast("Analisis selesai", "Draft penemuan AI sudah tersedia untuk semakan auditor.", "success");
+    showToast("Analisis selesai", "Draf penemuan AI sudah tersedia untuk semakan juruaudit.", "success");
     document.querySelector("#uploadForm").reset();
     selectedFile = null;
     selectedBase64 = "";
@@ -134,7 +134,7 @@ async function refreshData() {
     drafts = draftRecords.map(normalizeAiDraft);
     render();
   } catch (error) {
-    showToast("Ralat AI Intake", error.message || "Data AI tidak dapat dimuatkan.", "error");
+    showToast("Ralat Input AI", error.message || "Data AI tidak dapat dimuatkan.", "error");
     renderError();
   }
 }
@@ -148,13 +148,13 @@ async function handleDraftAction(event) {
     const request = buildMutationRequest("aiDrafts.promote", session.token, { id });
     const receipt = await submitAiMutation(request);
     if (isActionCancelled(receipt)) {
-      showToast("Dibatalkan", "Draft AI tidak disahkan.", "info");
+      showToast("Dibatalkan", "Draf AI tidak disahkan.", "info");
       return;
     }
-    showToast("Draft disahkan", "Draft AI telah dimasukkan sebagai penemuan audit.", "success");
+    showToast("Draf disahkan", "Draf AI telah dimasukkan sebagai penemuan audit.", "success");
     await refreshData();
   } catch (error) {
-    showToast("Gagal sahkan", error.message || "Draft tidak dapat disahkan.", "error");
+    showToast("Gagal sahkan", error.message || "Draf tidak dapat disahkan.", "error");
   } finally {
     setLoading(button, false, "Sahkan ke Penemuan");
   }
@@ -188,7 +188,7 @@ function renderJobs() {
         ${statusBadge(job.status)}
       </div>
       <div class="mt-3 grid grid-cols-3 gap-2 text-center text-xs font-bold text-slate-500">
-        <span class="rounded-lg bg-slate-50 p-2"><strong class="block text-lg text-slate-900">${job.draftCount}</strong>Draft</span>
+        <span class="rounded-lg bg-slate-50 p-2"><strong class="block text-lg text-slate-900">${job.draftCount}</strong>Draf</span>
         <span class="rounded-lg bg-slate-50 p-2"><strong class="block text-lg text-blue-700">${job.reviewScore}%</strong>Skor</span>
         <span class="rounded-lg bg-slate-50 p-2"><strong class="block text-lg text-slate-900">${escapeHtml(job.status)}</strong>Status</span>
       </div>
@@ -200,14 +200,14 @@ function renderJobs() {
 function renderDrafts() {
   const list = document.querySelector("#draftList");
   if (!drafts.length) {
-    list.innerHTML = emptyState("Draft AI akan dipaparkan di sini selepas dokumen dianalisis.");
+    list.innerHTML = emptyState("Draf AI akan dipaparkan di sini selepas dokumen dianalisis.");
     return;
   }
   list.innerHTML = drafts.map(draft => `
     <article class="rounded-xl border border-slate-200 bg-white p-4">
       <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p class="text-[11px] font-extrabold uppercase tracking-widest text-blue-600">Draft AI · ${Math.round(draft.confidence * 100)}% confidence</p>
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-blue-600">Draf AI · ${Math.round(draft.confidence * 100)}% keyakinan</p>
           <h2 class="mt-1 text-lg font-extrabold text-slate-900">${escapeHtml(draft.title || "Tajuk belum lengkap")}</h2>
           <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">${escapeHtml(draft.issueDescription || "-")}</p>
         </div>
@@ -308,22 +308,22 @@ function ensureShell() {
         <div class="brand-cover rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p class="text-xs font-extrabold uppercase tracking-widest text-blue-600">Fasa 7 · AI Intake</p>
+              <p class="text-xs font-extrabold uppercase tracking-widest text-blue-600">Fasa 7 · Input AI</p>
               <h1 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Analisis dokumen audit automatik</h1>
-              <p class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-500">Muat naik laporan audit universiti atau institusi. Gemini akan menukar kandungan kepada draft penemuan SPRAD, menjalankan semakan automatik dan menyediakan item untuk disahkan auditor.</p>
+              <p class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-500">Muat naik laporan audit universiti atau institusi. Gemini akan menukar kandungan kepada draf penemuan SPRAD, menjalankan semakan automatik dan menyediakan item untuk disahkan juruaudit.</p>
             </div>
-            <button id="refreshBtn" class="rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-extrabold text-slate-600"><i class="fa-solid fa-rotate-right mr-2"></i>Refresh</button>
+            <button id="refreshBtn" class="rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-extrabold text-slate-600"><i class="fa-solid fa-rotate-right mr-2"></i>Muat semula</button>
           </div>
         </div>
         <div class="admin-dashboard-grid">
           ${metric("jobCount", "Dokumen", "0")}
-          ${metric("draftCount", "Draft AI", "0")}
+          ${metric("draftCount", "Draf AI", "0")}
           ${metric("readyCount", "Lengkap", "0")}
           ${metric("reviewCount", "Perlu Semakan", "0")}
         </div>
         <div class="grid gap-4 xl:grid-cols-[380px_minmax(0,1fr)]">
           <form id="uploadForm" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 class="text-lg font-extrabold text-slate-900">Upload dokumen</h2>
+            <h2 class="text-lg font-extrabold text-slate-900">Muat naik dokumen</h2>
             <label class="mt-4 block"><span class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Tajuk sumber</span><input id="sourceTitle" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-bold outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100" placeholder="Contoh: Laporan Audit Dalam UniMAP 2026"></label>
             <label id="dropZone" class="mt-4 flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition">
               <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-600"></i>
@@ -340,7 +340,7 @@ function ensureShell() {
           </div>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Semakan auditor</p><h2 class="text-xl font-extrabold text-slate-900">Draft penemuan daripada AI</h2></div><p class="text-xs font-bold text-slate-500">AI cadangkan, auditor sahkan.</p></div>
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Semakan juruaudit</p><h2 class="text-xl font-extrabold text-slate-900">Draf penemuan daripada AI</h2></div><p class="text-xs font-bold text-slate-500">AI cadangkan, juruaudit sahkan.</p></div>
           <div id="draftList" class="mt-5 grid gap-4"></div>
         </div>
       </section>

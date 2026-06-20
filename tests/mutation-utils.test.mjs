@@ -1,7 +1,7 @@
 /*
  * File Path: tests/mutation-utils.test.mjs
- * File Version: SPRAD v2.8-production | metadata-header.1
- * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Kemas kini jangkaan mesej pengesahan kepada Bahasa Melayu.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -54,6 +54,34 @@ test("polls mutation receipts until success", async () => {
   assert.equal(calls.length, 2);
   assert.match(calls[0], /action=mutations\.status/);
   assert.match(calls[0], /requestId=req-123/);
+});
+
+test("polls mutation receipts when Apps Script returns Malay pending text", async () => {
+  const calls = [];
+  const fetchImpl = async (url) => {
+    calls.push(url);
+    return {
+      async json() {
+        return calls.length === 1
+          ? { ok: false, error: "Resit simpanan belum ditemui." }
+          : { ok: true, receipt: { status: "success", entity_id: "finding-2" } };
+      }
+    };
+  };
+
+  const receipt = await pollMutationReceipt({
+    url: "https://script.google.com/macros/s/demo/exec",
+    token: "token-123",
+    requestId: "req-124",
+    attempts: 3,
+    delayMs: 1,
+    sleep: async () => {},
+    fetchImpl
+  });
+
+  assert.equal(receipt.status, "success");
+  assert.equal(receipt.entity_id, "finding-2");
+  assert.equal(calls.length, 2);
 });
 
 test("does not report success when receipt polling times out", async () => {
@@ -121,6 +149,27 @@ test("throws immediately for non-pending polling errors", async () => {
   );
 });
 
+test("reports unsupported receipt polling when Apps Script returns Malay unknown action", async () => {
+  const receipt = await pollMutationReceipt({
+    url: "https://script.google.com/macros/s/demo/exec",
+    token: "token-123",
+    requestId: "req-malay-legacy",
+    attempts: 3,
+    delayMs: 1,
+    sleep: async () => {},
+    fetchImpl: async () => ({
+      async json() {
+        return { ok: false, error: "Tindakan tidak diketahui." };
+      }
+    })
+  });
+
+  assert.deepEqual(receipt, {
+    status: "unsupported",
+    error: "Pelayan belakang belum dikemaskini untuk pengesahan automatik. Sila kemaskini Apps Script dan deploy semula Aplikasi Web."
+  });
+});
+
 test("reports unsupported receipt polling for older Apps Script deployments", async () => {
   const receipt = await pollMutationReceipt({
     url: "https://script.google.com/macros/s/demo/exec",
@@ -138,6 +187,6 @@ test("reports unsupported receipt polling for older Apps Script deployments", as
 
   assert.deepEqual(receipt, {
     status: "unsupported",
-    error: "Backend belum dikemaskini untuk pengesahan automatik. Sila kemaskini Apps Script dan redeploy Web App."
+    error: "Pelayan belakang belum dikemaskini untuk pengesahan automatik. Sila kemaskini Apps Script dan deploy semula Aplikasi Web."
   });
 });

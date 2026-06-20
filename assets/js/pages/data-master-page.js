@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/pages/data-master-page.js
- * File Version: SPRAD v2.8-production | metadata-header.1
- * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Seragamkan teks UI kepada Bahasa Melayu.
  */
 import {
   setupLogoutButton,
@@ -76,7 +76,7 @@ const CRUD_PAGES = {
     eyebrow: "Data induk",
     description: "Urus fakulti, jabatan, pusat, unit dan struktur parent-child institusi.",
     formTitle: "PTJ / unit",
-    formHelp: "Institution admin boleh mengurus PTJ mengikut institusi sendiri.",
+    formHelp: "Pentadbir institusi boleh mengurus PTJ mengikut institusi sendiri.",
     permissions: ["masters.manage"],
     createAction: "orgUnits.create",
     updateAction: "orgUnits.update",
@@ -375,7 +375,7 @@ function renderForm(definition, target = "#editorForm") {
       <i id="submitIcon" class="fa-solid fa-floppy-disk"></i>
       <span id="submitLabel">Simpan</span>
     </button>
-    <button id="cancelBtn" type="button" class="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-extrabold text-slate-600 transition hover:bg-slate-100">Reset</button>
+    <button id="cancelBtn" type="button" class="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-extrabold text-slate-600 transition hover:bg-slate-100">Tetap semula</button>
   `;
   form.append(actions);
 }
@@ -492,7 +492,7 @@ function bindSettingsEvents() {
   document.querySelector("#cancelBtn")?.addEventListener("click", resetForm);
   document.querySelector("#editorForm")?.addEventListener("submit", submitCategoryForm);
   document.querySelector("#recordList")?.addEventListener("click", handleCategoryAction);
-  document.querySelector("#riskLevelList")?.addEventListener("click", handleRiskLevelEdit);
+  document.querySelector("#riskLevelList")?.addEventListener("click", handleRiskLevelSunting);
   document.querySelector("#riskLevelForm")?.addEventListener("submit", submitRiskLevelForm);
   document.querySelector("#riskLevelCancel")?.addEventListener("click", resetRiskLevelForm);
   document.querySelector("#prevPage")?.addEventListener("click", () => {
@@ -688,7 +688,7 @@ function renderRiskLevels() {
     });
 }
 
-function handleRiskLevelEdit(event) {
+function handleRiskLevelSunting(event) {
   const button = event.target.closest("[data-action='edit-level']");
   if (!button) return;
   const id = button.closest("tr[data-id]")?.dataset.id;
@@ -794,8 +794,9 @@ function getCacheKey(resource) {
 
 function readError(error) {
   const message = error?.message || "Permintaan gagal.";
-  if (message.toLowerCase().includes("unknown action")) {
-    return "Backend Apps Script belum versi Fasa 2. Kemas kini Code.gs dan redeploy Web App.";
+  const normalized = message.toLowerCase();
+  if (normalized.includes("unknown action") || normalized.includes("tindakan tidak diketahui")) {
+    return "Apps Script belum versi Fasa 2. Kemas kini Code.gs dan deploy semula Aplikasi Web.";
   }
   return message;
 }
@@ -813,7 +814,7 @@ function roleOptions() {
     { value: "auditor", label: "Juruaudit" },
     { value: "reviewer", label: "Penyemak" },
     { value: "viewer", label: "Pembaca" },
-    { value: "super_admin", label: "Super Admin" }
+    { value: "super_admin", label: "Pentadbir Utama" }
   ];
 }
 

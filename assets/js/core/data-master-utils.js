@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/core/data-master-utils.js
- * File Version: SPRAD v2.8-production | metadata-header.1
- * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Seragamkan teks UI kepada Bahasa Melayu.
  */
 import { buildMutationRequest } from "./mutation-utils.js";
 import { normalizeSearchText } from "./formatters.js";
@@ -64,7 +64,7 @@ export function getRecordStatusLabel(status) {
 
 export function getRoleLabel(role) {
   const labels = {
-    super_admin: "Super Admin",
+    super_admin: "Pentadbir Utama",
     institution_admin: "Pentadbir Institusi",
     auditor: "Juruaudit",
     reviewer: "Penyemak",

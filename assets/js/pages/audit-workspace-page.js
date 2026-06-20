@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/pages/audit-workspace-page.js
- * File Version: SPRAD v2.8-production | sidebar-panel.1
- * Update Info: 2026-06-20 - Asingkan side menu daripada card kandungan.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Seragamkan teks UI kepada Bahasa Melayu.
  */
 import { STORAGE_KEYS } from "../config.js";
 import {
@@ -335,7 +335,7 @@ function renderActionButtons(record) {
   const buttons = [];
 
   if (!page.readOnly && canEditRecord_(record)) {
-    buttons.push(actionButton("edit", record.id, "Edit", "fa-pen", "blue"));
+    buttons.push(actionButton("edit", record.id, "Sunting", "fa-pen", "blue"));
   }
   if (!page.readOnly && canRestoreRecord_(record)) {
     buttons.push(actionButton("restore", record.id, "Pulih", "fa-rotate-left", "green"));
@@ -370,7 +370,7 @@ function renderForm(record = {}) {
   }
   editorCard?.classList.remove("hidden");
   setText("editorMode", state.editing ? "Kemaskini rekod" : "Rekod baharu");
-  setText("editorTitle", state.editing ? "Edit butiran" : `Tambah ${page.title.toLowerCase()}`);
+  setText("editorTitle", state.editing ? "Sunting butiran" : `Tambah ${page.title.toLowerCase()}`);
   setText("editorHelp", "Medan bertanda wajib perlu lengkap sebelum disimpan.");
   const fields = page.fields || [];
   form.innerHTML = `
@@ -378,10 +378,10 @@ function renderForm(record = {}) {
     ${fields.map(field => renderField(field, record)).join("")}
     <div class="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
       <button type="submit" class="rounded-full bg-blue-600 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-blue-700"><i class="fa-solid fa-floppy-disk mr-2"></i>Simpan</button>
-      <button id="cancelEdit" type="button" class="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-extrabold text-slate-600 transition hover:bg-slate-100">Batal</button>
+      <button id="cancelSunting" type="button" class="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-extrabold text-slate-600 transition hover:bg-slate-100">Batal</button>
     </div>
   `;
-  document.querySelector("#cancelEdit")?.addEventListener("click", startCreate);
+  document.querySelector("#cancelSunting")?.addEventListener("click", startCreate);
 }
 
 function renderField(field, record) {
@@ -721,16 +721,16 @@ function ensureAuditShell() {
     <header class="sticky top-0 z-50 h-16 border-b border-gray-100 bg-white shadow-sm">
       <div class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <a href="./" class="flex items-center gap-3"><img src="https://www.akm.gov.my/templates/yootheme/cache/91/JATA%20NEGARA%20AI-01-91eac591.webp" alt="Jata Negara" class="h-10 w-10 object-contain"><div><p class="text-base font-extrabold tracking-tight text-slate-800">SPRAD</p><p class="text-[9px] font-semibold uppercase tracking-widest text-slate-500">Sistem Penilaian Risiko Audit Dalam</p></div></a>
-        <nav class="hidden items-center gap-6 text-xs font-bold uppercase tracking-wide text-slate-600 sm:flex"><a href="dashboard" class="hover:text-blue-600">Dashboard</a><button id="logout" type="button" class="rounded-full bg-slate-900 px-4 py-2 text-white transition hover:bg-black">Log keluar</button></nav>
+        <nav class="hidden items-center gap-6 text-xs font-bold uppercase tracking-wide text-slate-600 sm:flex"><a href="dashboard" class="hover:text-blue-600">Papan Pemuka</a><button id="logout" type="button" class="rounded-full bg-slate-900 px-4 py-2 text-white transition hover:bg-black">Log keluar</button></nav>
       </div>
     </header>
     <main class="sprad-shell mx-auto grid w-full max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:px-8">
       <aside class="sprad-sidebar self-start lg:sticky lg:top-16">
         <div class="flex items-center justify-between gap-3"><p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Ruang kerja</p><span id="sidebarRole" class="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-blue-700">SPRAD</span></div>
         <div class="mt-4 space-y-2">
-          <a href="dashboard" data-nav-route="dashboard" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500"><i class="fa-solid fa-chart-line w-4"></i>Dashboard</a>
+          <a href="dashboard" data-nav-route="dashboard" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500"><i class="fa-solid fa-chart-line w-4"></i>Papan Pemuka</a>
           <a href="form" data-nav-route="form" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500"><i class="fa-solid fa-clipboard-list w-4"></i>Penilaian risiko</a>
-          <a href="ai-intake" data-nav-route="ai-intake" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500"><i class="fa-solid fa-wand-magic-sparkles w-4"></i>AI Intake</a>
+          <a href="ai-intake" data-nav-route="ai-intake" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500"><i class="fa-solid fa-wand-magic-sparkles w-4"></i>Input AI</a>
           <a href="audit-cycles" data-nav-route="audit-cycles" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500"><i class="fa-solid fa-calendar-days w-4"></i>Kitaran audit</a>
           <a href="audits" data-nav-route="audits" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500"><i class="fa-solid fa-file-signature w-4"></i>Audit</a>
           <a href="findings" data-nav-route="findings" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-slate-500"><i class="fa-solid fa-triangle-exclamation w-4"></i>Penemuan</a>
@@ -748,7 +748,7 @@ function ensureAuditShell() {
         <div class="brand-cover rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p id="pageEyebrow" class="text-xs font-extrabold uppercase tracking-widest text-blue-600"></p><h1 id="pageTitle" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl"></h1><p id="pageDescription" class="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-500"></p></div>
         <div class="admin-dashboard-grid"><article class="admin-stat-card admin-stat-card--primary"><div class="admin-stat-topline"><p class="admin-stat-label">Jumlah</p><div class="admin-stat-icon"><i class="fa-solid fa-database"></i></div></div><div><h3 id="totalCount" class="admin-stat-value">0</h3></div></article><article class="admin-stat-card"><div class="admin-stat-topline"><p class="admin-stat-label">Aktif</p><span class="admin-stat-badge admin-stat-badge--active">Aktif</span></div><div><h3 id="activeCount" class="admin-stat-value">0</h3></div></article><article class="admin-stat-card"><div class="admin-stat-topline"><p class="admin-stat-label">Arkib</p><span class="admin-stat-badge admin-stat-badge--warning">Arkib</span></div><div><h3 id="archivedCount" class="admin-stat-value">0</h3></div></article><article class="admin-stat-card"><div class="admin-stat-topline"><p class="admin-stat-label">Status data</p><div class="admin-stat-icon"><i class="fa-solid fa-signal"></i></div></div><div><h3 id="cacheStatus" class="admin-stat-note">-</h3></div></article></div>
         <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_390px]">
-          <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div class="grid gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"><input id="search" type="search" placeholder="Cari rekod..." class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold outline-none"><label class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-extrabold text-slate-600"><input id="includeArchived" type="checkbox" class="h-4 w-4">Arkib</label><button id="refreshBtn" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-extrabold text-slate-600"><i class="fa-solid fa-rotate-right mr-2"></i>Refresh</button><button id="newBtn" type="button" class="rounded-full bg-blue-600 px-4 py-3 text-xs font-extrabold text-white"><i class="fa-solid fa-plus mr-2"></i>Rekod baharu</button></div><div class="sprad-table-shell"><table class="sprad-crud-table w-full divide-y divide-slate-100"><thead><tr><th>Rujukan</th><th>Butiran</th><th>Status</th><th>Petunjuk</th><th>Tindakan</th></tr></thead><tbody id="recordList" class="divide-y divide-slate-100"></tbody></table></div><div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><p id="paginationSummary" class="text-xs font-bold text-slate-500">0 rekod</p><div class="flex gap-2"><button id="prevPage" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-600">Sebelum</button><button id="nextPage" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-600">Seterusnya</button></div></div></div>
+          <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div class="grid gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"><input id="search" type="search" placeholder="Cari rekod..." class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold outline-none"><label class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-extrabold text-slate-600"><input id="includeArchived" type="checkbox" class="h-4 w-4">Arkib</label><button id="refreshBtn" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-extrabold text-slate-600"><i class="fa-solid fa-rotate-right mr-2"></i>Muat semula</button><button id="newBtn" type="button" class="rounded-full bg-blue-600 px-4 py-3 text-xs font-extrabold text-white"><i class="fa-solid fa-plus mr-2"></i>Rekod baharu</button></div><div class="sprad-table-shell"><table class="sprad-crud-table w-full divide-y divide-slate-100"><thead><tr><th>Rujukan</th><th>Butiran</th><th>Status</th><th>Petunjuk</th><th>Tindakan</th></tr></thead><tbody id="recordList" class="divide-y divide-slate-100"></tbody></table></div><div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><p id="paginationSummary" class="text-xs font-bold text-slate-500">0 rekod</p><div class="flex gap-2"><button id="prevPage" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-600">Sebelum</button><button id="nextPage" type="button" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-600">Seterusnya</button></div></div></div>
           <div id="editorCard" class="self-start rounded-2xl border border-slate-200 bg-white p-5 shadow-sm xl:sticky xl:top-20"><p id="editorMode" class="text-xs font-extrabold uppercase tracking-widest text-blue-600"></p><h2 id="editorTitle" class="mt-2 text-xl font-extrabold text-slate-900"></h2><p id="editorHelp" class="mt-2 text-xs font-semibold leading-5 text-slate-500"></p><form id="editorForm" class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-1"></form></div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/components/app-shell.js
- * File Version: SPRAD v2.8-production | metadata-header.1
- * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ * File Version: SPRAD v2.8-production | malay-localization.1
+ * Update Info: 2026-06-20 - Seragamkan teks UI kepada Bahasa Melayu.
  */
 import { STORAGE_KEYS } from "../config.js";
 import { revokeSession } from "../core/api.js";
