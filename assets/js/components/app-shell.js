@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/components/app-shell.js
- * File Version: SPRAD v2.8-production | sidebar-cleanup.1
- * Update Info: 2026-06-21 - Buang header Ruang Kerja dan role pill daripada shell sidebar.
+ * File Version: SPRAD v2.8-production | profile-menu.1
+ * Update Info: 2026-06-21 - Tukar butang log keluar kepada menu profil topbar gaya AnalisisMe.
  */
 import { STORAGE_KEYS } from "../config.js";
 import { revokeSession } from "../core/api.js";
@@ -9,6 +9,7 @@ import { confirmAction, confirmationCopyForAction } from "../core/action-confirm
 import { getRoleLabel, getRecordStatusLabel } from "../core/data-master-utils.js";
 import { getVisibleNavLinks, hasPermission, normalizeRole } from "../core/permissions.js";
 import { initSpaNavigation } from "../core/spa-navigation.js";
+import { setupProfileMenu } from "./profile-menu.js";
 
 let toastTimer;
 
@@ -53,7 +54,8 @@ export function getSessionContext() {
     legacyRole: (localStorage.getItem(STORAGE_KEYS.role) || "").toLowerCase(),
     v2Role: (localStorage.getItem(STORAGE_KEYS.v2Role) || "").toLowerCase(),
     userId: localStorage.getItem(STORAGE_KEYS.userId) || "",
-    institutionId: localStorage.getItem(STORAGE_KEYS.institutionId) || ""
+    institutionId: localStorage.getItem(STORAGE_KEYS.institutionId) || "",
+    username: localStorage.getItem(STORAGE_KEYS.username) || ""
   };
 }
 
@@ -106,7 +108,13 @@ export async function logoutToLogin() {
 }
 
 export function setupLogoutButton() {
-  document.querySelector("#logout")?.addEventListener("click", () => logoutToLogin());
+  const session = getSessionContext();
+  setupProfileMenu({
+    onLogout: logoutToLogin,
+    role: session.v2Role || session.legacyRole || "viewer",
+    username: session.username,
+    userId: session.userId
+  });
 }
 
 export function setupSidebar(currentRoute, session = getSessionContext()) {

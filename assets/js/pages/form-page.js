@@ -1,7 +1,7 @@
 /*
  * File Path: assets/js/pages/form-page.js
- * File Version: SPRAD v2.8-production | sidebar-cleanup.1
- * Update Info: 2026-06-21 - Buang header Ruang Kerja dan role pill daripada sidebar borang.
+ * File Version: SPRAD v2.8-production | profile-menu.1
+ * Update Info: 2026-06-21 - Tukar butang log keluar borang kepada menu profil topbar gaya AnalisisMe.
  */
 import { getApiUrl, STORAGE_KEYS } from "../config.js";
 import { revokeSession } from "../core/api.js";
@@ -20,6 +20,7 @@ import {
   createEmptyFindingIssue
 } from "../core/bulk-finding-utils.js";
 import { initSpaNavigation } from "../core/spa-navigation.js";
+import { setupProfileMenu } from "../components/profile-menu.js";
 
 const URL = getApiUrl();
 const form = document.querySelector("#contactForm");
@@ -27,7 +28,6 @@ const msg = document.querySelector("#msg");
 const issueList = document.querySelector("#issueList");
 const addIssueBtn = document.querySelector("#addIssueBtn");
 const issueCount = document.querySelector("#issueCount");
-const logout = document.querySelector("#logout");
 const submitBtn = document.querySelector("#submitBtn");
 const submitIcon = document.querySelector("#submitIcon");
 const submitLabel = document.querySelector("#submitLabel");
@@ -61,7 +61,7 @@ async function init() {
 }
 
 function bindEvents() {
-  logout?.addEventListener("click", logoutToLogin);
+  setupTopbarProfile();
   addIssueBtn?.addEventListener("click", () => {
     syncIssuesFromDom();
     state.issues.push(createEmptyFindingIssue());
@@ -387,6 +387,15 @@ function setupSidebar() {
   const navContainer = document.querySelector("aside .mt-4.space-y-2");
   if (!navContainer) return;
   navContainer.innerHTML = renderSidebarNav(role);
+}
+
+function setupTopbarProfile() {
+  setupProfileMenu({
+    onLogout: logoutToLogin,
+    role: localStorage.getItem(STORAGE_KEYS.v2Role) || localStorage.getItem(STORAGE_KEYS.role) || "viewer",
+    username: localStorage.getItem(STORAGE_KEYS.username) || "",
+    userId: localStorage.getItem(STORAGE_KEYS.userId) || ""
+  });
 }
 
 function renderSidebarNav(role) {

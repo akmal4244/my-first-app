@@ -1,9 +1,9 @@
 /*
  * File Path: sw.js
- * File Version: SPRAD v2.8-production | sidebar-cleanup.1
- * Update Info: 2026-06-21 - Bump cache supaya CSS sidebar baharu aktif selepas deploy.
+ * File Version: SPRAD v2.8-production | profile-menu.1
+ * Update Info: 2026-06-21 - Bump cache untuk menu profil topbar dan asset helper baharu.
  */
-const CACHE_NAME = "sprad-v2.8-sidebar-cleanup.1";
+const CACHE_NAME = "sprad-v2.8-profile-menu.1";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -20,6 +20,7 @@ const APP_SHELL = [
   "./assets/js/config.js",
   "./assets/js/core/spa-navigation.js",
   "./assets/js/components/app-shell.js",
+  "./assets/js/components/profile-menu.js",
   "./assets/js/pages/dashboard-page.js",
   "./assets/js/pages/form-page.js",
   "./assets/js/pages/audit-workspace-page.js",

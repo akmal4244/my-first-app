@@ -1,7 +1,7 @@
 /*
  * File Path: brand.css
- * File Version: SPRAD v2.8-production | sidebar-cleanup.1
- * Update Info: 2026-06-21 - Buang paparan Ruang Kerja dan role pill pada bahagian atas sidebar.
+ * File Version: SPRAD v2.8-production | profile-menu.1
+ * Update Info: 2026-06-21 - Tambah menu profil topbar gaya AnalisisMe dan sembunyikan butang logout tunggal.
  */
 :root {
   color-scheme: light;
@@ -158,6 +158,236 @@ header img {
   padding: 0 !important;
   box-shadow: none !important;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .05));
+}
+
+.sprad-user-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  z-index: 170;
+}
+
+.sprad-user-menu *,
+.sprad-user-menu *::before,
+.sprad-user-menu *::after {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.sprad-user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+  max-width: 15rem;
+  border: 1px solid #e2e8f0;
+  border-radius: .55rem !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: .22rem .55rem .22rem .22rem;
+  box-shadow: var(--sprad-shadow-sm);
+  cursor: pointer;
+}
+
+.sprad-user-btn:hover,
+.sprad-user-btn.open {
+  transform: none;
+  border-color: #cbd5e1;
+  background: #f8fafc !important;
+  box-shadow: var(--sprad-shadow-card);
+}
+
+.sprad-user-avatar {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: .45rem;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: .72rem;
+  font-weight: 850;
+  line-height: 1;
+  box-shadow: 0 10px 22px -16px rgba(37, 99, 235, .9);
+}
+
+.sprad-user-copy {
+  display: grid;
+  min-width: 0;
+  gap: .05rem;
+  text-align: left;
+}
+
+.sprad-user-name {
+  max-width: 9.5rem;
+  overflow: hidden;
+  color: #111827;
+  font-size: .82rem;
+  font-weight: 750;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sprad-user-meta {
+  max-width: 9.5rem;
+  overflow: hidden;
+  color: #64748b;
+  font-size: .68rem;
+  font-weight: 650;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sprad-user-chevron {
+  flex: 0 0 auto;
+  color: #94a3b8;
+  font-size: .68rem;
+  transition: transform .18s ease;
+}
+
+.sprad-user-btn.open .sprad-user-chevron {
+  transform: rotate(180deg);
+}
+
+.sprad-user-dropdown {
+  position: absolute;
+  top: calc(100% + .45rem);
+  right: 0;
+  display: none;
+  width: min(15.5rem, calc(100vw - 2rem));
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: .75rem;
+  background: #ffffff;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, .14);
+}
+
+.sprad-user-dropdown.open {
+  display: block;
+  animation: spradDropdownIn .16s ease-out both;
+}
+
+@keyframes spradDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sprad-user-dropdown-header {
+  padding: .9rem 1rem .75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sprad-user-dropdown-header p {
+  margin: 0;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: .9rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sprad-user-dropdown-header span {
+  display: block;
+  margin-top: .2rem;
+  overflow: hidden;
+  color: #64748b;
+  font-size: .74rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sprad-user-dropdown-header strong {
+  display: inline-flex;
+  align-items: center;
+  margin-top: .55rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: .18rem .55rem;
+  font-size: .66rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.sprad-user-dropdown-list {
+  display: grid;
+  gap: .15rem;
+  padding: .35rem;
+}
+
+.sprad-user-dropdown-link,
+.sprad-user-dropdown-button {
+  display: flex !important;
+  width: 100%;
+  align-items: center;
+  gap: .65rem;
+  border: 0;
+  border-radius: .5rem !important;
+  background: transparent !important;
+  color: #475569 !important;
+  padding: .62rem .75rem;
+  text-align: left;
+  font-size: .82rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sprad-user-dropdown-link:hover,
+.sprad-user-dropdown-button:hover {
+  transform: none;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.sprad-user-dropdown-link i,
+.sprad-user-dropdown-button i {
+  width: 1rem;
+  flex: 0 0 auto;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.sprad-user-dropdown-button--danger {
+  color: #dc2626 !important;
+}
+
+.sprad-user-dropdown-button--danger:hover {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+}
+
+.sprad-user-dropdown-divider {
+  height: 1px;
+  background: #e2e8f0;
+}
+
+@media (max-width: 640px) {
+  .sprad-user-copy,
+  .sprad-user-chevron {
+    display: none;
+  }
+
+  .sprad-user-btn {
+    padding: .22rem;
+  }
 }
 
 main {

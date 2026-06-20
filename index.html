@@ -1,8 +1,8 @@
 <!doctype html>
 <!--
   File Path: index.html
-  File Version: SPRAD v2.8-production | ujianme-style.1
-  Update Info: 2026-06-20 - Ringkaskan skrin log masuk utama mengikut gaya UjianMe tanpa bento yang serabut.
+  File Version: SPRAD v2.8-production | profile-menu.1
+  Update Info: 2026-06-21 - Simpan username semasa sesi aktif untuk paparan menu profil.
 -->
 <!-- v2.1 -->
 <html lang="ms">
@@ -265,6 +265,7 @@
           if (data.institution_id) localStorage.setItem(STORAGE_KEYS.institutionId, data.institution_id);
           else localStorage.removeItem(STORAGE_KEYS.institutionId);
           saveRememberedCredentials();
+          if (!remember.checked) localStorage.setItem(STORAGE_KEYS.username, form.username.value.trim());
           window.location.href = role === "pengguna" || v2Role === "auditor" ? "form" : "dashboard";
           return;
         }
