@@ -14,6 +14,7 @@ const LIST_ACTIONS = {
   institutions: ["institutions.list", "institutions"],
   orgUnits: ["orgUnits.list", "records"],
   riskCategories: ["riskCategories.list", "records"],
+  riskLevels: ["riskLevels.list", "records"],
   users: ["users.list", "users"]
 };
 

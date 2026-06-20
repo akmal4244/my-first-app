@@ -9,13 +9,15 @@ export async function listDataMaster(resource, token, options = {}) {
     institutions: "institutions.list",
     orgUnits: "orgUnits.list",
     users: "users.list",
-    riskCategories: "riskCategories.list"
+    riskCategories: "riskCategories.list",
+    riskLevels: "riskLevels.list"
   };
   const keyMap = {
     institutions: "institutions",
     orgUnits: "org_units",
     users: "users",
-    riskCategories: "risk_categories"
+    riskCategories: "risk_categories",
+    riskLevels: "records"
   };
   const action = actionMap[resource];
   if (!action) throw new Error("Sumber data induk tidak sah.");

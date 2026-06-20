@@ -2,7 +2,7 @@ import {
   setupLogoutButton,
   setupSidebar,
   normalizeCleanUrl,
-  requireAdminSession,
+  requireSession,
   showToast,
   statusBadge
 } from "../components/app-shell.js";
@@ -37,6 +37,7 @@ const CRUD_PAGES = {
     description: "Urus profil institusi, metadata laporan, logo dan status operasi.",
     formTitle: "Profil institusi",
     formHelp: "Super admin boleh cipta, kemaskini, arkib dan restore institusi.",
+    permissions: ["institutions.manage"],
     createAction: "institutions.create",
     updateAction: "institutions.update",
     deleteAction: "institutions.delete",
@@ -70,6 +71,7 @@ const CRUD_PAGES = {
     description: "Urus fakulti, jabatan, pusat, unit dan struktur parent-child institusi.",
     formTitle: "PTJ / unit",
     formHelp: "Institution admin boleh mengurus PTJ mengikut institusi sendiri.",
+    permissions: ["masters.manage"],
     createAction: "orgUnits.create",
     updateAction: "orgUnits.update",
     deleteAction: "orgUnits.delete",
@@ -101,6 +103,7 @@ const CRUD_PAGES = {
     description: "Urus akaun, peranan V2 dan akses mengikut institusi.",
     formTitle: "Akaun pengguna",
     formHelp: "Kata laluan wajib semasa cipta akaun. Biarkan kosong semasa edit jika tidak mahu tukar.",
+    permissions: ["users.manage"],
     createAction: "users.create",
     updateAction: "users.update",
     deleteAction: "users.deactivate",
@@ -148,7 +151,10 @@ document.addEventListener("DOMContentLoaded", () => {
 function initCrudPage(page) {
   const definition = CRUD_PAGES[page];
   if (!definition) return;
-  const session = requireAdminSession();
+  const session = requireSession({
+    permissions: definition.permissions || ["masters.manage"],
+    fallback: "dashboard"
+  });
   if (!session) return;
 
   state.page = page;
@@ -360,7 +366,7 @@ function renderForm(definition, target = "#editorForm") {
   if (!form) return;
   form.innerHTML = definition.fields.map(renderField).join("");
   const actions = document.createElement("div");
-  actions.className = "flex flex-col gap-2 pt-2 sm:flex-row";
+  actions.className = "sprad-form-row flex flex-col gap-2 pt-2 sm:flex-row";
   actions.innerHTML = `
     <button id="submitBtn" type="submit" class="flex flex-1 items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-70">
       <i id="submitIcon" class="fa-solid fa-floppy-disk"></i>
@@ -379,15 +385,15 @@ function renderField(field) {
   const label = `<span class="text-xs font-extrabold uppercase tracking-wide text-slate-500">${field.label}</span>`;
   const base = "mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100";
   if (field.type === "textarea") {
-    return `<label class="block md:col-span-2">${label}<textarea name="${field.name}" rows="${field.rows || 3}" ${field.required ? "required" : ""} class="${base}"></textarea></label>`;
+    return `<label class="sprad-form-row block">${label}<textarea name="${field.name}" rows="${field.rows || 3}" ${field.required ? "required" : ""} class="${base}"></textarea></label>`;
   }
   if (field.type === "select") {
     const options = field.name === "role" && state.session?.v2Role !== "super_admin"
       ? field.options.filter(option => option.value !== "super_admin")
       : field.options;
-    return `<label class="block">${label}<select name="${field.name}" ${field.required ? "required" : ""} class="${base}">${options.map(option => `<option value="${option.value}">${option.label}</option>`).join("")}</select></label>`;
+    return `<label class="sprad-form-row block">${label}<select name="${field.name}" ${field.required ? "required" : ""} class="${base}">${options.map(option => `<option value="${option.value}">${option.label}</option>`).join("")}</select></label>`;
   }
-  return `<label class="block">${label}<input name="${field.name}" type="${field.type || "text"}" ${field.required ? "required" : ""} ${field.autocomplete ? `autocomplete="${field.autocomplete}"` : ""} placeholder="${escapeHtml(field.placeholder || "")}" class="${base}"></label>`;
+  return `<label class="sprad-form-row block">${label}<input name="${field.name}" type="${field.type || "text"}" ${field.required ? "required" : ""} ${field.autocomplete ? `autocomplete="${field.autocomplete}"` : ""} placeholder="${escapeHtml(field.placeholder || "")}" class="${base}"></label>`;
 }
 
 function populateForm(record) {
@@ -452,7 +458,10 @@ function renderMessage(message) {
 }
 
 async function initSettingsPage() {
-  const session = requireAdminSession();
+  const session = requireSession({
+    permissions: ["masters.manage"],
+    fallback: "dashboard"
+  });
   if (!session) return;
   state.page = "settings";
   state.session = session;

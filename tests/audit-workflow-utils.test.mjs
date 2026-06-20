@@ -143,6 +143,8 @@ test("validates corrective action drafts with progress clamped to 0-100", () => 
 
 test("returns role-aware workflow actions for findings and corrective actions", () => {
   assert.deepEqual(getFindingWorkflowActions({ workflow_status: "draft" }, "auditor").map(action => action.action), ["findings.submit"]);
+  assert.deepEqual(getFindingWorkflowActions({ workflow_status: "draft" }, "reviewer").map(action => action.action), ["findings.submit"]);
+  assert.deepEqual(getFindingWorkflowActions({ workflow_status: "returned" }, "institution_admin").map(action => action.action), ["findings.submit"]);
   assert.deepEqual(getFindingWorkflowActions({ workflow_status: "submitted" }, "reviewer").map(action => action.action), ["findings.approve", "findings.return", "findings.overrideLevel"]);
   assert.deepEqual(getFindingWorkflowActions({ workflow_status: "approved" }, "auditor"), []);
   assert.deepEqual(getCorrectiveActionWorkflowActions({ status: "in_progress" }, "auditor").map(action => action.action), ["correctiveActions.submitForVerification"]);

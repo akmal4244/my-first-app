@@ -281,6 +281,19 @@ table {
   overflow-wrap: anywhere;
 }
 
+body[data-page="institutions"] #editorForm,
+body[data-page="org-units"] #editorForm,
+body[data-page="users"] #editorForm,
+body[data-page="settings"] #editorForm,
+body[data-page="settings"] #riskLevelForm {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.sprad-form-row {
+  grid-column: 1 / -1 !important;
+  min-width: 0;
+}
+
 .sprad-crud-table th:nth-child(1),
 .sprad-crud-table td:nth-child(1) {
   width: 16%;

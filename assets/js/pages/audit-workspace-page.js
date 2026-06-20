@@ -120,8 +120,7 @@ const PAGES = {
       { name: "audit_evidence", label: "URL bukti" },
       { name: "recommendation", label: "Cadangan", type: "textarea" },
       { name: "likelihood", label: "Kebarangkalian (1-4)", type: "number", min: 1, max: 4, required: true },
-      { name: "impact", label: "Impak (1-4)", type: "number", min: 1, max: 4, required: true },
-      { name: "workflow_status", label: "Status workflow", type: "select", options: [["draft", "Draf"], ["submitted", "Dihantar"], ["returned", "Dipulangkan"], ["approved", "Diluluskan"]] }
+      { name: "impact", label: "Impak (1-4)", type: "number", min: 1, max: 4, required: true }
     ],
     cells: (record, lookups) => [
       stack(record.finding_no || record.id, lookupLabel(lookups.riskCategories, record.category_id, "name")),
@@ -242,8 +241,9 @@ async function init() {
     document.querySelector("#editorCard")?.classList.add("hidden");
     document.querySelector("#newBtn")?.classList.add("hidden");
   }
-  if (!page.canMutate(normalizeRole(session.v2Role || session.legacyRole))) {
+  if (!canCreateRecord_()) {
     document.querySelector("#newBtn")?.classList.add("hidden");
+    document.querySelector("#editorCard")?.classList.add("hidden");
   }
 
   renderForm();
@@ -325,24 +325,27 @@ function renderRow(record) {
 }
 
 function renderActionButtons(record) {
-  const role = normalizeRole(session.v2Role || session.legacyRole);
-  const canMutate = page.canMutate(role);
+  const role = currentRole_();
   const buttons = [];
 
-  if (!page.readOnly && canMutate) {
+  if (!page.readOnly && canEditRecord_(record)) {
     buttons.push(actionButton("edit", record.id, "Edit", "fa-pen", "blue"));
-    if (record.deleted_at) {
-      buttons.push(actionButton("restore", record.id, "Pulih", "fa-rotate-left", "green"));
-    } else {
-      buttons.push(actionButton("delete", record.id, "Arkib", "fa-box-archive", "slate"));
-    }
+  }
+  if (!page.readOnly && canRestoreRecord_(record)) {
+    buttons.push(actionButton("restore", record.id, "Pulih", "fa-rotate-left", "green"));
+  } else if (!page.readOnly && canDeleteRecord_(record)) {
+    buttons.push(actionButton("delete", record.id, "Arkib", "fa-box-archive", "slate"));
   }
 
   (page.extraActions?.(record, role) || []).forEach(action => {
-    buttons.push(actionButton("workflow", record.id, action.label, action.icon, action.type, action.action));
+    if (canRunWorkflowAction_(action.action, record)) {
+      buttons.push(actionButton("workflow", record.id, action.label, action.icon, action.type, action.action));
+    }
   });
   (page.workflowActions?.(record, role) || []).forEach(action => {
-    buttons.push(actionButton("workflow", record.id, action.label, action.icon, action.type, action.action));
+    if (canRunWorkflowAction_(action.action, record)) {
+      buttons.push(actionButton("workflow", record.id, action.label, action.icon, action.type, action.action));
+    }
   });
 
   return buttons.length
@@ -353,6 +356,13 @@ function renderActionButtons(record) {
 function renderForm(record = {}) {
   const form = document.querySelector("#editorForm");
   if (!form || page.readOnly) return;
+  const allowed = state.editing ? canEditRecord_(state.editing) : canCreateRecord_();
+  const editorCard = document.querySelector("#editorCard");
+  if (!allowed) {
+    editorCard?.classList.add("hidden");
+    return;
+  }
+  editorCard?.classList.remove("hidden");
   setText("editorMode", state.editing ? "Kemaskini rekod" : "Rekod baharu");
   setText("editorTitle", state.editing ? "Edit butiran" : `Tambah ${page.title.toLowerCase()}`);
   setText("editorHelp", "Medan bertanda wajib perlu lengkap sebelum disimpan.");
@@ -400,8 +410,84 @@ function lookupOptions(field) {
     .map(item => [item.id, field.optionLabel ? field.optionLabel(item) : item.name || item.title || item.id]);
 }
 
+function currentRole_() {
+  return normalizeRole(session.v2Role || session.legacyRole);
+}
+
+function currentUserId_() {
+  return String(session.userId || "");
+}
+
+function isDeletedRecord_(record) {
+  return Boolean(record?.deleted_at) || String(record?.status || "").toLowerCase() === "archived";
+}
+
+function canCreateRecord_() {
+  return !page.readOnly && Boolean(page.canMutate?.(currentRole_()));
+}
+
+function canEditRecord_(record) {
+  if (!record?.id || page.readOnly || isDeletedRecord_(record)) return false;
+  const role = currentRole_();
+  if (!page.canMutate?.(role)) return false;
+  if (page.resource === "auditCycles") return hasPermission(role, "audit.manage") && record.status !== "finalized";
+  if (page.resource === "audits") return hasPermission(role, "audit.manage");
+  if (page.resource === "findings") return canManageFindingRecord_(record, role);
+  if (page.resource === "correctiveActions") return canManageCorrectiveActionRecord_(record, role);
+  return false;
+}
+
+function canDeleteRecord_(record) {
+  return !isDeletedRecord_(record) && canEditRecord_(record);
+}
+
+function canRestoreRecord_(record) {
+  if (!record?.id || page.readOnly || !isDeletedRecord_(record)) return false;
+  const role = currentRole_();
+  if (!["super_admin", "institution_admin"].includes(role)) return false;
+  if (page.resource === "auditCycles") return hasPermission(role, "audit.manage") && record.status !== "finalized";
+  if (page.resource === "audits") return hasPermission(role, "audit.manage");
+  return ["findings", "correctiveActions"].includes(page.resource);
+}
+
+function canRunWorkflowAction_(action, record) {
+  if (!action || !record?.id || isDeletedRecord_(record)) return false;
+  const role = currentRole_();
+  const status = String(record.workflow_status || record.status || "").toLowerCase();
+  if (action === "auditCycles.finalize") return hasPermission(role, "audit.manage") && status !== "finalized";
+  if (action === "findings.submit") return ["draft", "returned"].includes(status) && canManageFindingRecord_(record, role);
+  if (action === "findings.approve" || action === "findings.return") return status === "submitted" && hasPermission(role, "findings.review");
+  if (action === "findings.overrideLevel") return ["submitted", "approved"].includes(status) && hasPermission(role, "findings.review");
+  if (action === "correctiveActions.submitForVerification") {
+    return ["open", "in_progress", "returned"].includes(status) && canManageCorrectiveActionRecord_(record, role);
+  }
+  if (action === "correctiveActions.verify" || action === "correctiveActions.return") {
+    return status === "awaiting_verification" && hasPermission(role, "actions.verify");
+  }
+  return false;
+}
+
+function canManageFindingRecord_(record, role = currentRole_()) {
+  if (["super_admin", "institution_admin", "reviewer"].includes(role)) return true;
+  if (role !== "auditor") return false;
+  const status = String(record.workflow_status || "draft").toLowerCase();
+  return String(record.created_by || "") === currentUserId_() && ["draft", "returned"].includes(status);
+}
+
+function canManageCorrectiveActionRecord_(record, role = currentRole_()) {
+  if (["super_admin", "institution_admin", "reviewer"].includes(role)) return true;
+  if (role !== "auditor") return false;
+  const ownAction = String(record.created_by || record.owner_user_id || "") === currentUserId_();
+  const status = String(record.status || "open").toLowerCase();
+  return ownAction && ["open", "in_progress", "returned"].includes(status);
+}
+
 async function handleSubmit(event) {
   event.preventDefault();
+  if (state.editing ? !canEditRecord_(state.editing) : !canCreateRecord_()) {
+    showToast("Akses terhad", "Anda tidak mempunyai kebenaran untuk menyimpan rekod ini.", "warning");
+    return;
+  }
   const form = event.currentTarget;
   const payload = Object.fromEntries(new FormData(form).entries());
   if (state.editing) payload.id = state.editing.id;
@@ -423,20 +509,36 @@ async function handleListClick(event) {
   if (!record) return;
   const action = button.dataset.action;
   if (action === "edit") {
+    if (!canEditRecord_(record)) {
+      showToast("Akses terhad", "Rekod ini tidak boleh diubah oleh peranan anda.", "warning");
+      return;
+    }
     state.editing = record;
     renderForm(record);
     document.querySelector("#editorCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
   if (action === "delete") {
+    if (!canDeleteRecord_(record)) {
+      showToast("Akses terhad", "Rekod ini tidak boleh diarkib oleh peranan anda.", "warning");
+      return;
+    }
     if (confirm("Arkibkan rekod ini?")) await runMutation(page.deleteAction, { id: record.id }, "Rekod diarkibkan.");
     return;
   }
   if (action === "restore") {
+    if (!canRestoreRecord_(record)) {
+      showToast("Akses terhad", "Rekod ini tidak boleh dipulihkan oleh peranan anda.", "warning");
+      return;
+    }
     await runMutation(page.restoreAction, { id: record.id }, "Rekod dipulihkan.");
     return;
   }
   if (action === "workflow") {
+    if (!canRunWorkflowAction_(button.dataset.workflow, record)) {
+      showToast("Akses terhad", "Tindakan workflow ini tidak dibenarkan.", "warning");
+      return;
+    }
     await handleWorkflow(button.dataset.workflow, record);
   }
 }

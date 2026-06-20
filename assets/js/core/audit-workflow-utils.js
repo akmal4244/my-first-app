@@ -109,7 +109,7 @@ export function getFindingWorkflowActions(record = {}, role = "viewer") {
   const status = clean(record.workflow_status || "draft").toLowerCase();
   const normalizedRole = clean(role).toLowerCase();
   if (!EDIT_ROLES.has(normalizedRole) && !REVIEW_ROLES.has(normalizedRole)) return [];
-  if (["draft", "returned"].includes(status) && !REVIEW_ROLES.has(normalizedRole)) {
+  if (["draft", "returned"].includes(status)) {
     return [{ action: "findings.submit", label: "Hantar semakan", icon: "fa-paper-plane", type: "info" }];
   }
   if (status === "submitted" && REVIEW_ROLES.has(normalizedRole)) {
