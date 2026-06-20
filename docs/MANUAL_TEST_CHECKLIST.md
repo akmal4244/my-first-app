@@ -1,3 +1,9 @@
+<!--
+File Path: docs/MANUAL_TEST_CHECKLIST.md
+File Version: SPRAD v2.8-production | metadata-header.1
+Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+-->
+
 # SPRAD Manual Test Checklist
 
 Gunakan checklist ini selepas frontend push dan Apps Script redeploy.

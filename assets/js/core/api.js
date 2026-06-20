@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/core/api.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 import { getApiUrl } from "../config.js";
 
 export function buildApiUrl(params, baseUrl = getApiUrl()) {

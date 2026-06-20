@@ -1,4 +1,9 @@
 {
+  "_spradFileInfo": {
+    "filePath": "apps-script/appsscript.json",
+    "fileVersion": "SPRAD v2.8-production | metadata-header.1",
+    "updateInfo": "2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update."
+  },
   "timeZone": "Asia/Kuala_Lumpur",
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8",

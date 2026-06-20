@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/core/data-master-utils.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 import { buildMutationRequest } from "./mutation-utils.js";
 import { normalizeSearchText } from "./formatters.js";
 

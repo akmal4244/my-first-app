@@ -1,3 +1,8 @@
+/*
+ * File Path: tests/ujianme-style-contract.test.mjs
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";

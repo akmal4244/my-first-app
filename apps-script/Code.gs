@@ -1,3 +1,8 @@
+/*
+ * File Path: apps-script/Code.gs
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 // =========== APP CONFIG ===========
 const APP_NAME = "Sistem Penilaian Risiko Audit Dalam (SPRAD)";
 const LOGO_URL = "https://www.akm.gov.my/templates/yootheme/cache/91/JATA%20NEGARA%20AI-01-91eac591.webp";

@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/config.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 export const APP_CONFIG = Object.freeze({
   appName: "Sistem Penilaian Risiko Audit Dalam",
   shortName: "SPRAD",

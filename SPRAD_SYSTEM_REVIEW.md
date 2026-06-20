@@ -1,3 +1,9 @@
+<!--
+File Path: SPRAD_SYSTEM_REVIEW.md
+File Version: SPRAD v2.8-production | metadata-header.1
+Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+-->
+
 # SPRAD System Review and Improvement Notes
 
 Tarikh semakan: 2026-06-19  

@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/core/validators.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 export function requireText(value, fieldName) {
   const text = String(value || "").trim();
   if (!text) throw new Error(`${fieldName} wajib diisi.`);

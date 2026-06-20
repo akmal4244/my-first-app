@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/services/ai-intake-service.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 import { getJson } from "../core/api.js";
 import { runConfirmedAction } from "../core/action-confirmation.js";
 import { postOpaqueMutation } from "../core/mutation.js";

@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/core/formatters.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 export function formatDateTime(value, locale = "ms-MY") {
   if (!value) return "-";
   const date = value instanceof Date ? value : new Date(value);

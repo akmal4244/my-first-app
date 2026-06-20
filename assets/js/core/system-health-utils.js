@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/core/system-health-utils.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 export function normalizeHealthResponse(response = {}) {
   const health = response.data?.health || response.health || {};
   const checks = normalizeItems(health.checks);

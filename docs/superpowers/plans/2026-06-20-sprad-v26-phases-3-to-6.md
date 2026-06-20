@@ -1,3 +1,9 @@
+<!--
+File Path: docs/superpowers/plans/2026-06-20-sprad-v26-phases-3-to-6.md
+File Version: SPRAD v2.8-production | metadata-header.1
+Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+-->
+
 # SPRAD V2.6 Phases 3 To 6 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

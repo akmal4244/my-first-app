@@ -1,3 +1,9 @@
+<!--
+File Path: docs/SPRAD_V2_SYSTEM_BLUEPRINT.md
+File Version: SPRAD v2.8-production | metadata-header.1
+Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+-->
+
 # Blueprint Sistem SPRAD V2
 
 **Sistem Penilaian Risiko Audit Dalam (SPRAD)**

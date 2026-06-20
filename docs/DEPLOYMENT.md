@@ -1,3 +1,9 @@
+<!--
+File Path: docs/DEPLOYMENT.md
+File Version: SPRAD v2.8-production | metadata-header.1
+Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+-->
+
 # SPRAD Deployment Notes
 
 URL live rasmi:

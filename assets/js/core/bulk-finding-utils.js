@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/core/bulk-finding-utils.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 import { calculateRisk } from "./risk-engine.js";
 
 export function createEmptyFindingIssue() {

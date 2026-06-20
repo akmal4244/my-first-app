@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/pages/form-page.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 import { getApiUrl, STORAGE_KEYS } from "../config.js";
 import { revokeSession } from "../core/api.js";
 import {

@@ -1,3 +1,8 @@
+/*
+ * File Path: assets/js/core/storage.js
+ * File Version: SPRAD v2.8-production | metadata-header.1
+ * Update Info: 2026-06-20 - Tambah metadata header untuk monitor path, versi dan info update.
+ */
 export function buildScopedCacheKey({ userId, institutionId, resource }) {
   const safeUserId = String(userId || "anonymous").trim() || "anonymous";
   const safeInstitutionId = String(institutionId || "global").trim() || "global";
